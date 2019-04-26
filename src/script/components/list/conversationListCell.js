@@ -24,10 +24,11 @@ import {MediaType} from '../../media/MediaType';
 import {generateCellState} from '../../conversation/ConversationCellState';
 
 class ConversationListCell {
-  constructor({conversation, onJoinCall, is_selected = noop, click = noop}) {
+  constructor({showJoinButton, conversation, onJoinCall, is_selected = noop, click = noop}) {
     this.conversation = conversation;
     this.is_selected = is_selected;
     this.on_click = click;
+    this.showJoinButton = showJoinButton;
 
     this.users = ko.pureComputed(() => this.conversation.participating_user_ets());
 
@@ -36,10 +37,12 @@ class ConversationListCell {
       .computed(() => this.cell_state(generateCellState(this.conversation)))
       .extend({rateLimit: 500});
 
-    this.showJoinButton = this.conversation.hasJoinableCall;
     this.ConversationStatusIcon = ConversationStatusIcon;
 
-    this.onJoinCall = () => onJoinCall(conversation, MediaType.AUDIO);
+    this.onJoinCall = (data, event) => {
+      event.preventDefault();
+      onJoinCall(conversation, MediaType.AUDIO);
+    };
   }
 
   destroy() {
