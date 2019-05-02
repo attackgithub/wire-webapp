@@ -170,10 +170,10 @@ const TimeUtil = {
    */
   formatTimestamp: (timestamp, longFormat = true) => {
     const time = moment(timestamp);
-    let format = 'DD.MM.YYYY (HH:mm:ss)';
+    let format = 'L (LTS)';
 
     if (longFormat) {
-      format = moment().year() === time.year() ? 'ddd D MMM, HH:mm' : 'ddd D MMM YYYY, HH:mm';
+      format = moment().year() === time.year() ? 'ddd D MMM, LT' : 'ddd D MMM YYYY, LT';
     }
 
     return time.format(format);
