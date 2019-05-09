@@ -22,21 +22,18 @@ import UUID from 'uuidjs';
 import hljs from 'highlightjs';
 import CryptoJS from 'crypto-js';
 import MarkdownIt from 'markdown-it';
+import 'phoneformat.js';
 
 import {escapeString} from 'Util/SanitizationUtil';
 
-/* eslint-disable no-unused-vars */
-import PhoneFormatGlobal from 'phoneformat.js';
 import {replaceInRange} from './StringUtil';
 import {Environment} from './Environment';
-/* eslint-enable no-unused-vars */
+import {AuthError} from '../error/AuthError';
 
 export const checkIndexedDb = () => {
   if (!Environment.browser.supports.indexedDb) {
-    const errorType = Environment.browser.edge
-      ? z.error.AuthError.TYPE.PRIVATE_MODE
-      : z.error.AuthError.TYPE.INDEXED_DB_UNSUPPORTED;
-    return Promise.reject(new z.error.AuthError(errorType));
+    const errorType = Environment.browser.edge ? AuthError.TYPE.PRIVATE_MODE : AuthError.TYPE.INDEXED_DB_UNSUPPORTED;
+    return Promise.reject(new AuthError(errorType));
   }
 
   if (Environment.browser.firefox) {
@@ -47,11 +44,11 @@ export const checkIndexedDb = () => {
       dbOpenRequest.onerror = event => {
         if (dbOpenRequest.error) {
           event.preventDefault();
-          return Promise.reject(new z.error.AuthError(z.error.AuthError.TYPE.PRIVATE_MODE));
+          return Promise.reject(new AuthError(AuthError.TYPE.PRIVATE_MODE));
         }
       };
     } catch (error) {
-      return Promise.reject(new z.error.AuthError(z.error.AuthError.TYPE.PRIVATE_MODE));
+      return Promise.reject(new AuthError(AuthError.TYPE.PRIVATE_MODE));
     }
 
     return new Promise((resolve, reject) => {
@@ -64,7 +61,7 @@ export const checkIndexedDb = () => {
 
         if (dbOpenRequest.readyState === 'done' && !dbOpenRequest.result) {
           window.clearInterval(interval_id);
-          return reject(new z.error.AuthError(z.error.AuthError.TYPE.PRIVATE_MODE));
+          return reject(new AuthError(AuthError.TYPE.PRIVATE_MODE));
         }
 
         const tooManyAttempts = currentAttempt >= maxRetry;

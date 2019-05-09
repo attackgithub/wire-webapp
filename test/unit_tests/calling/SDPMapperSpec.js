@@ -20,6 +20,7 @@
 import {SDPMapper} from 'src/script/calling/SDPMapper';
 import {SDP_TYPE} from 'src/script/calling/rtc/SDPType';
 import {Environment} from 'src/script/util/Environment';
+import {CallError} from 'src/script/error/CallError';
 
 describe('SDPMapper', () => {
   const defaultConfig = {isGroup: false, isIceRestart: false, isLocalSdp: true};
@@ -34,7 +35,7 @@ a=tcap:5 UDP/TLS/RTP/SAVP`.replace(/\n/g, '\r\n');
 
   describe('rewriteSdp', () => {
     it('fails if no SDP given', () => {
-      const expectedError = new z.error.CallError(z.error.CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
+      const expectedError = new CallError(CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
 
       expect(() => SDPMapper.rewriteSdp(undefined)).toThrow(expectedError);
     });

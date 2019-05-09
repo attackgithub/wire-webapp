@@ -17,10 +17,9 @@
  *
  */
 
-window.z = window.z || {};
-window.z.error = z.error || {};
+import {BaseError} from './BaseError';
 
-z.error.AuthError = class AuthError extends z.error.BaseError {
+export class AuthError extends BaseError {
   constructor(type, message) {
     super('AuthError', type, message);
   }
@@ -42,4 +41,4 @@ z.error.AuthError = class AuthError extends z.error.BaseError {
       PRIVATE_MODE: 'PRIVATE_MODE',
     };
   }
-};
+}

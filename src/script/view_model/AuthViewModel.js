@@ -42,9 +42,9 @@ import {URL_PATH, getAccountPagesUrl, getWebsiteUrl} from '../externalRoute';
 import {AssetService} from '../assets/AssetService';
 import {StorageService} from '../storage/StorageService';
 import {StorageRepository} from '../storage/StorageRepository';
+import {StorageSchemata} from '../storage/StorageSchemata';
 import {UserRepository} from '../user/UserRepository';
 import {serverTimeHandler} from '../time/serverTimeHandler';
-import {StorageSchemata} from '../storage/StorageSchemata';
 
 import '../auth/AuthView';
 import '../auth/ValidationError';
@@ -64,6 +64,10 @@ import {Modal} from '../ui/Modal';
 import {ClientRepository} from '../client/ClientRepository';
 import {ClientType} from '../client/ClientType';
 import {CryptographyRepository} from '../cryptography/CryptographyRepository';
+
+import {AuthError} from '../error/AuthError';
+import {BackendClientError} from '../error/BackendClientError';
+import {ClientError} from '../error/ClientError';
 
 class AuthViewModel {
   static get CONFIG() {
@@ -276,7 +280,7 @@ class AuthViewModel {
         this._init_url_hash();
       })
       .catch(error => {
-        if (!(error instanceof z.error.AuthError)) {
+        if (!(error instanceof AuthError)) {
           throw error;
         }
       });
@@ -332,7 +336,7 @@ class AuthViewModel {
     const cookies_disabled = () => {
       if (current_hash !== AuthView.MODE.BLOCKED_COOKIES) {
         this._set_hash(AuthView.MODE.BLOCKED_COOKIES);
-        throw new z.error.AuthError(z.error.AuthError.TYPE.COOKIES_DISABLED);
+        throw new AuthError(AuthError.TYPE.COOKIES_DISABLED);
       }
     };
 
@@ -396,7 +400,7 @@ class AuthViewModel {
           }
         }
 
-        return Promise.reject(new z.error.AuthError(z.error.AuthError.TYPE.MULTIPLE_TABS));
+        return Promise.reject(new AuthError(AuthError.TYPE.MULTIPLE_TABS));
       }
     }
 
@@ -428,7 +432,7 @@ class AuthViewModel {
           }
         })
         .catch(error => {
-          const isMultipleTabs = error.type === z.error.AuthError.TYPE.MULTIPLE_TABS;
+          const isMultipleTabs = error.type === AuthError.TYPE.MULTIPLE_TABS;
           if (!isMultipleTabs) {
             throw error;
           }
@@ -469,25 +473,25 @@ class AuthViewModel {
           this.pending_server_request(false);
           if (navigator.onLine) {
             switch (error.label) {
-              case z.error.BackendClientError.LABEL.BAD_REQUEST:
+              case BackendClientError.LABEL.BAD_REQUEST:
                 this._add_error(t('authErrorPhoneNumberInvalid'), AuthView.TYPE.PHONE);
                 break;
-              case z.error.BackendClientError.LABEL.INVALID_PHONE:
+              case BackendClientError.LABEL.INVALID_PHONE:
                 this._add_error(t('authErrorPhoneNumberUnknown'), AuthView.TYPE.PHONE);
                 break;
-              case z.error.BackendClientError.LABEL.PASSWORD_EXISTS:
+              case BackendClientError.LABEL.PASSWORD_EXISTS:
                 this._set_hash(AuthView.MODE.VERIFY_PASSWORD);
                 break;
-              case z.error.BackendClientError.LABEL.PENDING_LOGIN:
+              case BackendClientError.LABEL.PENDING_LOGIN:
                 _on_code_request_success(error);
                 break;
-              case z.error.BackendClientError.LABEL.PHONE_BUDGET_EXHAUSTED:
+              case BackendClientError.LABEL.PHONE_BUDGET_EXHAUSTED:
                 this._add_error(t('authErrorPhoneNumberBudget'), AuthView.TYPE.PHONE);
                 break;
-              case z.error.BackendClientError.LABEL.SUSPENDED:
+              case BackendClientError.LABEL.SUSPENDED:
                 this._add_error(t('authErrorSuspended'));
                 break;
-              case z.error.BackendClientError.LABEL.UNAUTHORIZED:
+              case BackendClientError.LABEL.UNAUTHORIZED:
                 this._add_error(t('authErrorPhoneNumberForbidden'), AuthView.TYPE.PHONE);
                 break;
               default:
@@ -514,7 +518,7 @@ class AuthViewModel {
         .putSelfPassword(this.password())
         .catch(error => {
           this.logger.warn(`Could not change user password: ${error.message}`, error);
-          if (error.code !== z.error.BackendClientError.STATUS_CODE.FORBIDDEN) {
+          if (error.code !== BackendClientError.STATUS_CODE.FORBIDDEN) {
             throw error;
           }
         })
@@ -530,13 +534,13 @@ class AuthViewModel {
           this.pending_server_request(false);
           if (error) {
             switch (error.label) {
-              case z.error.BackendClientError.LABEL.BLACKLISTED_EMAIL:
+              case BackendClientError.LABEL.BLACKLISTED_EMAIL:
                 this._add_error(t('authErrorEmailForbidden'), AuthView.TYPE.EMAIL);
                 break;
-              case z.error.BackendClientError.LABEL.KEY_EXISTS:
+              case BackendClientError.LABEL.KEY_EXISTS:
                 this._add_error(t('authErrorEmailExists'), AuthView.TYPE.EMAIL);
                 break;
-              case z.error.BackendClientError.LABEL.INVALID_EMAIL:
+              case BackendClientError.LABEL.INVALID_EMAIL:
                 this._add_error(t('authErrorEmailMalformed'), AuthView.TYPE.EMAIL);
                 break;
               default:
@@ -590,7 +594,7 @@ class AuthViewModel {
         $('#wire-verify-password').focus();
         if (navigator.onLine) {
           if (error.label) {
-            if (error.label === z.error.BackendClientError.LABEL.PENDING_ACTIVATION) {
+            if (error.label === BackendClientError.LABEL.PENDING_ACTIVATION) {
               this._add_error(t('authErrorPending'));
             } else {
               this._add_error(t('authErrorSignIn'), AuthView.TYPE.PASSWORD);
@@ -1519,7 +1523,7 @@ class AuthViewModel {
           throw error;
         }
 
-        const client_not_validated = error.type === z.error.ClientError.TYPE.NO_VALID_CLIENT;
+        const client_not_validated = error.type === ClientError.TYPE.NO_VALID_CLIENT;
         if (client_not_validated) {
           const client_et = this.client_repository.currentClient();
           this.client_repository.currentClient(undefined);
@@ -1608,7 +1612,7 @@ class AuthViewModel {
         return this.event_repository.setStreamState(clientObservable().id, true);
       })
       .catch(error => {
-        const isNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+        const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
         if (isNotFound) {
           return this.logger.warn(`Cannot set starting point on notification stream: ${error.message}`, error);
         }
@@ -1636,7 +1640,7 @@ class AuthViewModel {
         });
       })
       .catch(error => {
-        const isTooManyClients = error.type === z.error.ClientError.TYPE.TOO_MANY_CLIENTS;
+        const isTooManyClients = error.type === ClientError.TYPE.TOO_MANY_CLIENTS;
         if (isTooManyClients) {
           this.logger.warn('User has already registered the maximum number of clients', error);
           return (window.location.hash = AuthView.MODE.LIMIT);

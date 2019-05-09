@@ -27,9 +27,13 @@ import {base64ToArray, arrayToBase64, zeroPadding} from 'Util/util';
 
 import {CryptographyMapper} from './CryptographyMapper';
 import {CryptographyService} from './CryptographyService';
+
 import {WebAppEvents} from '../event/WebApp';
 import {EventName} from '../tracking/EventName';
 import {ClientEntity} from '../client/ClientEntity';
+
+import {BackendClientError} from '../error/BackendClientError';
+import {ClientError} from '../error/ClientError';
 
 export class CryptographyRepository {
   static get CONFIG() {
@@ -85,7 +89,7 @@ export class CryptographyRepository {
       .catch(databaseError => {
         const message = `Failed cryptography-related db deletion on client validation error: ${databaseError.message}`;
         this.logger.error(message, databaseError);
-        throw new z.error.ClientError(z.error.ClientError.TYPE.DATABASE_FAILURE);
+        throw new ClientError(ClientError.TYPE.DATABASE_FAILURE);
       })
       .then(() => deleteEverything);
   }
@@ -170,7 +174,7 @@ export class CryptographyRepository {
       .getUserPreKeyByIds(userId, clientId)
       .then(response => response.prekey)
       .catch(error => {
-        const isNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+        const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
         if (isNotFound) {
           throw new z.error.UserError(z.error.UserError.TYPE.PRE_KEY_NOT_FOUND);
         }
@@ -187,7 +191,7 @@ export class CryptographyRepository {
    */
   getUsersPreKeys(recipients) {
     return this.cryptographyService.getUsersPreKeys(recipients).catch(error => {
-      const isNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+      const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
       if (isNotFound) {
         throw new z.error.UserError(z.error.UserError.TYPE.PRE_KEY_NOT_FOUND);
       }

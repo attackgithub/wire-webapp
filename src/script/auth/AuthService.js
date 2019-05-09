@@ -22,6 +22,9 @@ import {TIME_IN_MILLIS} from 'Util/TimeUtil';
 import {BackendClient} from '../service/BackendClient';
 import {QUEUE_STATE} from '../service/QueueState';
 
+import {AccessTokenError} from '../error/AccessTokenError';
+import {BackendClientError} from '../error/BackendClientError';
+
 export class AuthService {
   static get CONFIG() {
     return {
@@ -92,17 +95,17 @@ export class AuthService {
       };
 
       ajaxConfig.error = (jqXHR, textStatus, errorThrown) => {
-        const isRequestForbidden = jqXHR.status === z.error.BackendClientError.STATUS_CODE.FORBIDDEN;
+        const isRequestForbidden = jqXHR.status === BackendClientError.STATUS_CODE.FORBIDDEN;
         if (isRequestForbidden) {
           this.logger.warn(`Request for access token forbidden (Attempt '${retryAttempt}'): ${errorThrown}`, jqXHR);
-          return reject(new z.error.AccessTokenError(z.error.AccessTokenError.TYPE.REQUEST_FORBIDDEN));
+          return reject(new AccessTokenError(AccessTokenError.TYPE.REQUEST_FORBIDDEN));
         }
 
         const exceededRetries = retryAttempt > AuthService.CONFIG.POST_ACCESS_RETRY.LIMIT;
         if (exceededRetries) {
           this.saveAccessTokenInClient();
           this.logger.warn(`Exceeded limit of attempts to refresh access token': ${errorThrown}`, jqXHR);
-          return reject(new z.error.AccessTokenError(z.error.AccessTokenError.TYPE.RETRIES_EXCEEDED));
+          return reject(new AccessTokenError(AccessTokenError.TYPE.RETRIES_EXCEEDED));
         }
 
         retryAttempt++;
@@ -113,7 +116,7 @@ export class AuthService {
             .catch(reject);
         };
 
-        const isConnectivityProblem = jqXHR.status === z.error.BackendClientError.STATUS_CODE.CONNECTIVITY_PROBLEM;
+        const isConnectivityProblem = jqXHR.status === BackendClientError.STATUS_CODE.CONNECTIVITY_PROBLEM;
         if (isConnectivityProblem) {
           this.logger.warn('Delaying request for access token due to suspected connectivity issue');
           this.backendClient.clearQueueUnblockTimeout();

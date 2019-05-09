@@ -18,6 +18,7 @@
  */
 
 import {resolve, graph, backendConfig} from './../../api/testResolver';
+import {BackendClientError} from 'src/script/error/BackendClientError';
 
 describe('UserService', () => {
   let server = null;
@@ -60,7 +61,7 @@ describe('UserService', () => {
         .getUsers(['7025598b-ffac-4993-8a81-af3f35b71414'])
         .then(done.fail)
         .catch(error => {
-          expect(error.code).toBe(z.error.BackendClientError.STATUS_CODE.NOT_FOUND);
+          expect(error.code).toBe(BackendClientError.STATUS_CODE.NOT_FOUND);
           done();
         });
 
@@ -99,7 +100,7 @@ describe('UserService', () => {
         .getUsers(['7025598b-ffac-4993-8a81-af3f35b71488', '7025598b-ffac-4993-8a81-af3f35b71414'])
         .then(done.fail)
         .catch(error => {
-          expect(error.code).toBe(z.error.BackendClientError.STATUS_CODE.NOT_FOUND);
+          expect(error.code).toBe(BackendClientError.STATUS_CODE.NOT_FOUND);
           done();
         });
 

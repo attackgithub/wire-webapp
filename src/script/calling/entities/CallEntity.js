@@ -38,6 +38,7 @@ import {AudioType} from '../../audio/AudioType';
 import {WebAppEvents} from '../../event/WebApp';
 import {EventRepository} from '../../event/EventRepository';
 import {EventName} from '../../tracking/EventName';
+import {CallError} from '../../error/CallError';
 
 export class CallEntity {
   static get CONFIG() {
@@ -723,7 +724,7 @@ export class CallEntity {
     return this.getParticipantById(userId)
       .then(participantEntity => this._updateParticipant(participantEntity, negotiate, callMessageEntity))
       .catch(error => {
-        const isNotFound = error.type === z.error.CallError.TYPE.NOT_FOUND;
+        const isNotFound = error.type === CallError.TYPE.NOT_FOUND;
         if (isNotFound) {
           return this._addParticipant(userId, negotiate, callMessageEntity);
         }
@@ -784,7 +785,7 @@ export class CallEntity {
         return this;
       })
       .catch(error => {
-        const isNotFound = error.type === z.error.CallError.TYPE.NOT_FOUND;
+        const isNotFound = error.type === CallError.TYPE.NOT_FOUND;
         if (isNotFound) {
           return this;
         }
@@ -806,7 +807,7 @@ export class CallEntity {
       }
     }
 
-    return Promise.reject(new z.error.CallError(z.error.CallError.TYPE.NOT_FOUND, 'No participant found for user ID'));
+    return Promise.reject(new CallError(CallError.TYPE.NOT_FOUND, 'No participant found for user ID'));
   }
 
   /**
@@ -843,7 +844,7 @@ export class CallEntity {
         return this;
       }
 
-      throw new z.error.CallError(z.error.CallError.TYPE.WRONG_SENDER, 'Session IDs not matching');
+      throw new CallError(CallError.TYPE.WRONG_SENDER, 'Session IDs not matching');
     });
   }
 
@@ -859,7 +860,7 @@ export class CallEntity {
     const isSelfUser = userId === this.selfUser.id;
     if (isSelfUser) {
       const errorMessage = 'Self user should not be added as call participant';
-      return Promise.reject(new z.error.CallError(z.error.CallError.TYPE.WRONG_STATE, errorMessage));
+      return Promise.reject(new CallError(CallError.TYPE.WRONG_STATE, errorMessage));
     }
 
     return this.userRepository.get_user_by_id(userId).then(userEntity => {

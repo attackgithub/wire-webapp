@@ -18,6 +18,7 @@
  */
 
 import {MediaType} from 'src/script/media/MediaType';
+import {CallError} from 'src/script/error/CallError';
 
 describe('CallingRepository', () => {
   const testFactory = new TestFactory();
@@ -31,7 +32,7 @@ describe('CallingRepository', () => {
 
   describe('toggleMedia', () => {
     it('does nothing if the conversation is not found', () => {
-      spyOn(callingRepository, 'getCallById').and.returnValue(Promise.reject(z.error.CallError.TYPE.NOT_FOUND));
+      spyOn(callingRepository, 'getCallById').and.returnValue(Promise.reject(CallError.TYPE.NOT_FOUND));
       spyOn(callingRepository, '_toggleMediaState');
       return callingRepository.toggleMedia('notfoundid', 'audio').then(() => {
         expect(callingRepository._toggleMediaState).not.toHaveBeenCalled();

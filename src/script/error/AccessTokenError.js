@@ -17,10 +17,9 @@
  *
  */
 
-window.z = window.z || {};
-window.z.error = z.error || {};
+import {BaseError} from './BaseError';
 
-z.error.AccessTokenError = class AccessTokenError extends z.error.BaseError {
+export class AccessTokenError extends BaseError {
   constructor(type, message) {
     super('AccessTokenError', type, message);
   }
@@ -42,4 +41,4 @@ z.error.AccessTokenError = class AccessTokenError extends z.error.BaseError {
       RETRIES_EXCEEDED: 'RETRIES_EXCEEDED',
     };
   }
-};
+}

@@ -24,6 +24,7 @@ import {SDP_NEGOTIATION_MODE} from '../enum/SDPNegotiationMode';
 import {FlowEntity} from './FlowEntity';
 import {WebAppEvents} from '../../event/WebApp';
 import {AudioType} from '../../audio/AudioType';
+import {CallError} from '../../error/CallError';
 
 class ParticipantEntity {
   static get CONFIG() {
@@ -174,12 +175,12 @@ class ParticipantEntity {
           message: `State change requested from '{0}' while we are connected to '{1}'`,
         };
         this.callLogger.warn(logMessage, this);
-        throw new z.error.CallError(z.error.CallError.TYPE.WRONG_SENDER);
+        throw new CallError(CallError.TYPE.WRONG_SENDER);
       }
 
       this.flowEntity.remoteClientId = clientId;
     } else {
-      throw new z.error.CallError(z.error.CallError.TYPE.WRONG_SENDER, 'Sender ID missing');
+      throw new CallError(CallError.TYPE.WRONG_SENDER, 'Sender ID missing');
     }
   }
 }

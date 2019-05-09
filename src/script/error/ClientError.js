@@ -17,10 +17,9 @@
  *
  */
 
-window.z = window.z || {};
-window.z.error = z.error || {};
+import {BaseError} from './BaseError';
 
-z.error.ClientError = class ClientError extends z.error.BaseError {
+export class ClientError extends BaseError {
   constructor(type, message) {
     super('ClientError', type, message);
   }
@@ -50,4 +49,4 @@ z.error.ClientError = class ClientError extends z.error.BaseError {
       TOO_MANY_CLIENTS: 'TOO_MANY_CLIENTS',
     };
   }
-};
+}

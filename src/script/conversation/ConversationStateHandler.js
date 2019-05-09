@@ -22,13 +22,13 @@ import {t} from 'Util/LocalizerUtil';
 import {ModalsViewModel} from '../view_model/ModalsViewModel';
 import {BackendEvent} from '../event/Backend';
 import {WebAppEvents} from '../event/WebApp';
+import {EventName} from '../tracking/EventName';
+import {BackendClientError} from '../error/BackendClientError';
 
 import {ACCESS_MODE} from './AccessMode';
 import {ACCESS_ROLE} from './AccessRole';
 import {ACCESS_STATE} from './AccessState';
 import {AbstractConversationEventHandler} from './AbstractConversationEventHandler';
-
-import {EventName} from '../tracking/EventName';
 
 export class ConversationStateHandler extends AbstractConversationEventHandler {
   /**
@@ -99,7 +99,7 @@ export class ConversationStateHandler extends AbstractConversationEventHandler {
       .getConversationCode(conversationEntity.id)
       .then(response => this.conversationMapper.mapAccessCode(conversationEntity, response))
       .catch(error => {
-        const isNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+        const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
         if (!isNotFound) {
           this._showModal(t('modalConversationGuestOptionsGetCodeMessage'));
         }

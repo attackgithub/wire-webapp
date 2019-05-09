@@ -18,6 +18,7 @@
  */
 
 import {capitalizeFirstChar} from 'Util/StringUtil';
+import {TeamError} from '../error/TeamError';
 
 let bitsCounter = 0;
 
@@ -143,7 +144,7 @@ export const ROLE = {
 
 export function roleFromTeamPermissions(permissions) {
   if (!permissions) {
-    throw new z.error.TeamError(z.error.TeamError.TYPE.NO_PERMISSIONS);
+    throw new TeamError(TeamError.TYPE.NO_PERMISSIONS);
   }
 
   const invalidRoles = [ROLE.INVALID, ROLE.NONE];

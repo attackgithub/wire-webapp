@@ -25,6 +25,9 @@ import {koArrayPushAll} from 'Util/util';
 import {CALL_MESSAGE_TYPE} from '../calling/enum/CallMessageType';
 import {AssetUploadFailedReason} from '../assets/AssetUploadFailedReason';
 import {AssetTransferState} from '../assets/AssetTransferState';
+import {WarningsViewModel} from '../view_model/WarningsViewModel';
+import {categoryFromEvent} from '../message/MessageCategorization';
+import {BackendClientError} from '../error/BackendClientError';
 
 import {EVENT_TYPE} from './EventType';
 import {ClientEvent} from './Client';
@@ -32,8 +35,6 @@ import {EventTypeHandling} from './EventTypeHandling';
 import {BackendEvent} from './Backend';
 import {WebAppEvents} from './WebApp';
 import {NOTIFICATION_HANDLING_STATE} from './NotificationHandlingState';
-import {WarningsViewModel} from '../view_model/WarningsViewModel';
-import {categoryFromEvent} from '../message/MessageCategorization';
 
 export class EventRepository {
   static get CONFIG() {
@@ -293,7 +294,7 @@ export class EventRepository {
             return _gotNotifications(errorResponse);
           }
 
-          const isNotFound = errorResponse.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+          const isNotFound = errorResponse.code === BackendClientError.STATUS_CODE.NOT_FOUND;
           if (isNotFound) {
             this.logger.info(`No notifications found since '${notificationId}'`, errorResponse);
             return reject(new z.error.EventError(z.error.EventError.TYPE.NO_NOTIFICATIONS));

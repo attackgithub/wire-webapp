@@ -17,10 +17,9 @@
  *
  */
 
-window.z = window.z || {};
-window.z.error = z.error || {};
+import {BaseError} from './BaseError';
 
-z.error.CallError = class CallError extends z.error.BaseError {
+export class CallError extends BaseError {
   constructor(type, message) {
     super('CallError', type, message);
   }
@@ -60,4 +59,4 @@ z.error.CallError = class CallError extends z.error.BaseError {
       WRONG_STATE: 'WRONG_STATE',
     };
   }
-};
+}

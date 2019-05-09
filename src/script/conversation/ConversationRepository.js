@@ -56,9 +56,7 @@ import {BackendEvent} from '../event/Backend';
 import {WebAppEvents} from '../event/WebApp';
 import {NOTIFICATION_HANDLING_STATE} from '../event/NotificationHandlingState';
 import {EventRepository} from '../event/EventRepository';
-
 import {Conversation} from '../entity/Conversation';
-
 import * as trackingHelpers from '../tracking/Helpers';
 
 import {ConversationMapper} from './ConversationMapper';
@@ -79,6 +77,9 @@ import {ClientMismatchHandler} from './ClientMismatchHandler';
 import {CALL_MESSAGE_TYPE} from '../calling/enum/CallMessageType';
 import {PROPERTY_STATE} from '../calling/enum/PropertyState';
 import {TERMINATION_REASON} from '../calling/enum/TerminationReason';
+
+import {BaseError} from '../error/BaseError';
+import {BackendClientError} from '../error/BackendClientError';
 
 import {ConnectionStatus} from '../connection/ConnectionStatus';
 import * as AssetMetaDataBuilder from '../assets/AssetMetaDataBuilder';
@@ -1294,15 +1295,15 @@ export class ConversationRepository {
 
   _handleAddToConversationError(error, conversationEntity, userIds) {
     switch (error.label) {
-      case z.error.BackendClientError.LABEL.NOT_CONNECTED: {
+      case BackendClientError.LABEL.NOT_CONNECTED: {
         this._handleUsersNotConnected(userIds);
         break;
       }
 
-      case z.error.BackendClientError.LABEL.BAD_GATEWAY:
-      case z.error.BackendClientError.LABEL.SERVER_ERROR:
-      case z.error.BackendClientError.LABEL.SERVICE_DISABLED:
-      case z.error.BackendClientError.LABEL.TOO_MANY_BOTS: {
+      case BackendClientError.LABEL.BAD_GATEWAY:
+      case BackendClientError.LABEL.SERVER_ERROR:
+      case BackendClientError.LABEL.SERVICE_DISABLED:
+      case BackendClientError.LABEL.TOO_MANY_BOTS: {
         const messageText = t('modalServiceUnavailableMessage');
         const titleText = t('modalServiceUnavailableHeadline');
 
@@ -1310,7 +1311,7 @@ export class ConversationRepository {
         break;
       }
 
-      case z.error.BackendClientError.LABEL.TOO_MANY_MEMBERS: {
+      case BackendClientError.LABEL.TOO_MANY_MEMBERS: {
         this._handleTooManyMembersError(conversationEntity.getNumberOfParticipants());
         break;
       }
@@ -1544,12 +1545,12 @@ export class ConversationRepository {
    */
   setNotificationState(conversationEntity, notificationState) {
     if (!conversationEntity || notificationState === undefined) {
-      return Promise.reject(new z.error.ConversationError(z.error.BaseError.TYPE.MISSING_PARAMETER));
+      return Promise.reject(new z.error.ConversationError(BaseError.TYPE.MISSING_PARAMETER));
     }
 
     const validNotificationStates = Object.values(NOTIFICATION_STATE);
     if (!validNotificationStates.includes(notificationState)) {
-      return Promise.reject(new z.error.ConversationError(z.error.BaseError.TYPE.INVALID_PARAMETER));
+      return Promise.reject(new z.error.ConversationError(BaseError.TYPE.INVALID_PARAMETER));
     }
 
     const currentTimestamp = this.serverTimeHandler.toServerTimestamp();
@@ -1635,7 +1636,7 @@ export class ConversationRepository {
           const logMessage = `Failed to change archived state of '${conversationId}' to '${newState}': ${error.code}`;
           this.logger.error(logMessage);
 
-          const isNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+          const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
           if (!isNotFound) {
             throw error;
           }
@@ -1680,10 +1681,10 @@ export class ConversationRepository {
 
   _handleConversationCreateError(error, userIds) {
     switch (error.label) {
-      case z.error.BackendClientError.LABEL.CLIENT_ERROR:
+      case BackendClientError.LABEL.CLIENT_ERROR:
         this._handleTooManyMembersError();
         break;
-      case z.error.BackendClientError.LABEL.NOT_CONNECTED:
+      case BackendClientError.LABEL.NOT_CONNECTED:
         this._handleUsersNotConnected(userIds);
         break;
       default:
@@ -2514,7 +2515,7 @@ export class ConversationRepository {
         });
       })
       .catch(error => {
-        const isRequestTooLarge = error.code === z.error.BackendClientError.STATUS_CODE.REQUEST_TOO_LARGE;
+        const isRequestTooLarge = error.code === BackendClientError.STATUS_CODE.REQUEST_TOO_LARGE;
         if (isRequestTooLarge) {
           return this._sendExternalGenericMessage(eventInfoEntity);
         }
@@ -2564,7 +2565,7 @@ export class ConversationRepository {
         return response;
       })
       .catch(error => {
-        const isUnknownClient = error.label === z.error.BackendClientError.LABEL.UNKNOWN_CLIENT;
+        const isUnknownClient = error.label === BackendClientError.LABEL.UNKNOWN_CLIENT;
         if (isUnknownClient) {
           return this.client_repository.removeLocalClient();
         }
@@ -2822,7 +2823,7 @@ export class ConversationRepository {
         return this._delete_message_by_id(conversationEntity, messageId);
       })
       .catch(error => {
-        const isConversationNotFound = error.code === z.error.BackendClientError.STATUS_CODE.NOT_FOUND;
+        const isConversationNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
         if (isConversationNotFound) {
           this.logger.warn(`Conversation '${conversationId}' not found. Deleting message for self user only.`);
           return this.deleteMessage(conversationEntity, messageEntity);

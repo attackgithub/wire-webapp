@@ -28,6 +28,7 @@ import {MediaType} from '../../media/MediaType';
 
 import {WebAppEvents} from '../../event/WebApp';
 import {EventRepository} from '../../event/EventRepository';
+import {CallError} from '../../error/CallError';
 
 import {CallLogger} from '../../telemetry/calling/CallLogger';
 import {CallSetupSteps} from '../../telemetry/calling/CallSetupSteps';
@@ -676,12 +677,12 @@ class FlowEntity {
       } catch (error) {
         if (!response) {
           this.callLogger.warn(`Failed to send calling message via data channel: ${error.name}`, error);
-          throw new z.error.CallError(z.error.CallError.TYPE.NO_DATA_CHANNEL);
+          throw new CallError(CallError.TYPE.NO_DATA_CHANNEL);
         }
       }
     }
 
-    throw new z.error.CallError(z.error.CallError.TYPE.NO_DATA_CHANNEL);
+    throw new CallError(CallError.TYPE.NO_DATA_CHANNEL);
   }
 
   /**
@@ -1398,11 +1399,11 @@ class FlowEntity {
           return rtpSender;
         }
 
-        throw new z.error.CallError(z.error.CallError.TYPE.RTP_SENDER_NOT_SUPPORTED);
+        throw new CallError(CallError.TYPE.RTP_SENDER_NOT_SUPPORTED);
       }
     }
 
-    throw new z.error.CallError(z.error.CallError.TYPE.NO_REPLACEABLE_TRACK);
+    throw new CallError(CallError.TYPE.NO_REPLACEABLE_TRACK);
   }
 
   /**

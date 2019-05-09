@@ -17,10 +17,9 @@
  *
  */
 
-window.z = window.z || {};
-window.z.error = z.error || {};
+import {BaseError} from './BaseError';
 
-z.error.TeamError = class TeamError extends z.error.BaseError {
+export class TeamError extends BaseError {
   constructor(type, message) {
     super('TeamError', type, message);
   }
@@ -36,4 +35,4 @@ z.error.TeamError = class TeamError extends z.error.BaseError {
       NO_PERMISSIONS: 'NO_PERMISSIONS',
     };
   }
-};
+}

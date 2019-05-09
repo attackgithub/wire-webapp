@@ -21,6 +21,7 @@ import {Environment} from 'Util/Environment';
 import {includesString} from 'Util/StringUtil';
 
 import {SDP_TYPE} from './rtc/SDPType';
+import {CallError} from '../error/CallError';
 
 export const SDPMapper = {
   CONFIG: {
@@ -65,7 +66,7 @@ export const SDPMapper = {
    */
   rewriteSdp(rtcSdp, {isIceRestart, isLocalSdp, isGroup} = {}) {
     if (!rtcSdp) {
-      throw new z.error.CallError(z.error.CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
+      throw new CallError(CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
     }
 
     const {sdp, type} = rtcSdp;
