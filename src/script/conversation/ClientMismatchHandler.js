@@ -19,6 +19,7 @@
 
 import {getLogger} from 'Util/Logger';
 import {getDifference} from 'Util/ArrayUtil';
+import {ConversationError} from '../error/ConversationError';
 
 export class ClientMismatchHandler {
   constructor(conversationRepository, cryptographyRepository, eventRepository, serverTimeHandler, userRepository) {
@@ -151,7 +152,7 @@ export class ClientMismatchHandler {
 
     const conversationPromise = conversationId
       ? this.conversationRepository.get_conversation_by_id(conversationId).catch(error => {
-          const isConversationNotFound = error.type === z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND;
+          const isConversationNotFound = error.type === ConversationError.TYPE.CONVERSATION_NOT_FOUND;
           if (!isConversationNotFound) {
             throw error;
           }

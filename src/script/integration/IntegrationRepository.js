@@ -21,13 +21,15 @@ import {getLogger} from 'Util/Logger';
 import {t} from 'Util/LocalizerUtil';
 import {compareTransliteration, sortByPriority} from 'Util/StringUtil';
 
-import {ModalsViewModel} from '../view_model/ModalsViewModel';
-import {ACCESS_STATE} from '../conversation/AccessState';
-import {WebAppEvents} from '../event/WebApp';
 import {IntegrationMapper} from './IntegrationMapper';
 import {ServiceEntity} from './ServiceEntity';
 import {ServiceTag} from './ServiceTag';
+
+import {ModalsViewModel} from '../view_model/ModalsViewModel';
+import {ACCESS_STATE} from '../conversation/AccessState';
+import {WebAppEvents} from '../event/WebApp';
 import {EventName} from '../tracking/EventName';
+import {ConversationError} from '../error/ConversationError';
 
 export class IntegrationRepository {
   /**
@@ -124,7 +126,7 @@ export class IntegrationRepository {
           return this.addService(conversationEntity, serviceEntity, 'start_ui').then(() => conversationEntity);
         }
 
-        throw new z.error.ConversationError(z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND);
+        throw new ConversationError(ConversationError.TYPE.CONVERSATION_NOT_FOUND);
       })
       .catch(error => {
         amplify.publish(WebAppEvents.WARNING.MODAL, ModalsViewModel.TYPE.ACKNOWLEDGE, {

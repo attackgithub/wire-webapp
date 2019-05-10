@@ -34,6 +34,7 @@ import {AvailabilityType} from '../../user/AvailabilityType';
 
 import {StorageKey} from '../../storage/StorageKey';
 import {WebAppEvents} from '../../event/WebApp';
+import {ConversationError} from '../../error/ConversationError';
 
 import {QuoteEntity} from '../../message/QuoteEntity';
 import {MessageHasher} from '../../message/MessageHasher';
@@ -778,7 +779,7 @@ z.viewModel.content.InputBarViewModel = class InputBarViewModel {
     this.conversationRepository
       .sendMessageEdit(this.conversationEntity(), messageText, messageEntity, mentionEntities)
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.NO_MESSAGE_CHANGES) {
+        if (error.type !== ConversationError.TYPE.NO_MESSAGE_CHANGES) {
           throw error;
         }
       });

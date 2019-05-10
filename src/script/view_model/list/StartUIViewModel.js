@@ -35,6 +35,7 @@ import {ServiceEntity} from '../../integration/ServiceEntity';
 import {MotionDuration} from '../../motion/MotionDuration';
 import {EventName} from '../../tracking/EventName';
 import {SearchRepository} from '../../search/SearchRepository';
+import {ConnectError} from '../../error/ConnectError';
 
 class StartUIViewModel {
   static get STATE() {
@@ -539,7 +540,7 @@ class StartUIViewModel {
         this.showMatches(true);
       })
       .catch(error => {
-        const isNoContacts = error.type === z.error.ConnectError.TYPE.NO_CONTACTS;
+        const isNoContacts = error.type === ConnectError.TYPE.NO_CONTACTS;
         if (!isNoContacts) {
           this.logger.error(`Importing contacts from '${source}' failed: ${error.message}`, error);
 

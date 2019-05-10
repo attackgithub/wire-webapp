@@ -33,6 +33,7 @@ import {ConversationType} from '../conversation/ConversationType';
 import {ConversationStatus} from '../conversation/ConversationStatus';
 import {ConversationRepository} from '../conversation/ConversationRepository';
 import {ConversationVerificationState} from '../conversation/ConversationVerificationState';
+import {ConversationError} from '../error/ConversationError';
 
 import {WebAppEvents} from '../event/WebApp';
 import {ClientRepository} from '../client/ClientRepository';
@@ -378,7 +379,7 @@ export class Conversation {
 
     const entityTimestamp = this[type];
     if (!entityTimestamp) {
-      throw new z.error.ConversationError(z.error.ConversationError.TYPE.INVALID_PARAMETER);
+      throw new ConversationError(ConversationError.TYPE.INVALID_PARAMETER);
     }
 
     const updatedTimestamp = forceUpdate ? timestamp : this._incrementTimeOnly(entityTimestamp(), timestamp);

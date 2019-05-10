@@ -80,6 +80,7 @@ import {TERMINATION_REASON} from '../calling/enum/TerminationReason';
 
 import {BaseError} from '../error/BaseError';
 import {BackendClientError} from '../error/BackendClientError';
+import {ConversationError} from '../error/ConversationError';
 
 import {ConnectionStatus} from '../connection/ConnectionStatus';
 import * as AssetMetaDataBuilder from '../assets/AssetMetaDataBuilder';
@@ -449,7 +450,7 @@ export class ConversationRepository {
         return conversation_et;
       })
       .catch(() => {
-        const error = new z.error.ConversationError(z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND);
+        const error = new ConversationError(ConversationError.TYPE.CONVERSATION_NOT_FOUND);
 
         this.fetching_conversations[conversation_id].forEach(({reject_fn}) => reject_fn(error));
         delete this.fetching_conversations[conversation_id];
@@ -534,7 +535,7 @@ export class ConversationRepository {
           if (event) {
             return this.event_mapper.mapJsonEvent(event, conversationEntity);
           }
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND);
+          throw new ConversationError(ConversationError.TYPE.MESSAGE_NOT_FOUND);
         });
 
     if (ensureUser) {
@@ -834,14 +835,14 @@ export class ConversationRepository {
    */
   get_conversation_by_id(conversation_id) {
     if (!_.isString(conversation_id)) {
-      return Promise.reject(new z.error.ConversationError(z.error.ConversationError.TYPE.NO_CONVERSATION_ID));
+      return Promise.reject(new ConversationError(ConversationError.TYPE.NO_CONVERSATION_ID));
     }
     const conversationEntity = this.find_conversation_by_id(conversation_id);
     if (conversationEntity) {
       return Promise.resolve(conversationEntity);
     }
     return this.fetch_conversation_by_id(conversation_id).catch(error => {
-      const isConversationNotFound = error.type === z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND;
+      const isConversationNotFound = error.type === ConversationError.TYPE.CONVERSATION_NOT_FOUND;
       if (!isConversationNotFound) {
         this.logger.error(`Failed to get conversation '${conversation_id}': ${error.message}`, error);
       }
@@ -977,7 +978,7 @@ export class ConversationRepository {
         return this.updateParticipatingUserEntities(conversationEntity);
       })
       .catch(error => {
-        const isConversationNotFound = error.type === z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND;
+        const isConversationNotFound = error.type === ConversationError.TYPE.CONVERSATION_NOT_FOUND;
         if (!isConversationNotFound) {
           throw error;
         }
@@ -1014,7 +1015,7 @@ export class ConversationRepository {
         );
       })
       .catch(error => {
-        const messageNotFound = error.type === z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND;
+        const messageNotFound = error.type === ConversationError.TYPE.MESSAGE_NOT_FOUND;
         if (messageNotFound) {
           return true;
         }
@@ -1080,7 +1081,7 @@ export class ConversationRepository {
         return conversationEntity;
       })
       .catch(error => {
-        const isConversationNotFound = error.type === z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND;
+        const isConversationNotFound = error.type === ConversationError.TYPE.CONVERSATION_NOT_FOUND;
         if (!isConversationNotFound) {
           throw error;
         }
@@ -1545,12 +1546,12 @@ export class ConversationRepository {
    */
   setNotificationState(conversationEntity, notificationState) {
     if (!conversationEntity || notificationState === undefined) {
-      return Promise.reject(new z.error.ConversationError(BaseError.TYPE.MISSING_PARAMETER));
+      return Promise.reject(new ConversationError(BaseError.TYPE.MISSING_PARAMETER));
     }
 
     const validNotificationStates = Object.values(NOTIFICATION_STATE);
     if (!validNotificationStates.includes(notificationState)) {
-      return Promise.reject(new z.error.ConversationError(BaseError.TYPE.INVALID_PARAMETER));
+      return Promise.reject(new ConversationError(BaseError.TYPE.INVALID_PARAMETER));
     }
 
     const currentTimestamp = this.serverTimeHandler.toServerTimestamp();
@@ -1608,7 +1609,7 @@ export class ConversationRepository {
 
   _toggleArchiveConversation(conversationEntity, newState, forceChange) {
     if (!conversationEntity) {
-      const error = new z.error.ConversationError(z.error.ConversationError.TYPE.CONVERSATION_NOT_FOUND);
+      const error = new ConversationError(ConversationError.TYPE.CONVERSATION_NOT_FOUND);
       return Promise.reject(error);
     }
 
@@ -1620,7 +1621,7 @@ export class ConversationRepository {
     const skipChange = sameTimestamp && !forceChange;
 
     if (!stateChange && skipChange) {
-      return Promise.reject(new z.error.ConversationError(z.error.ConversationError.TYPE.NO_CHANGES));
+      return Promise.reject(new ConversationError(ConversationError.TYPE.NO_CHANGES));
     }
 
     const payload = {
@@ -1838,7 +1839,7 @@ export class ConversationRepository {
         const log = `Failed to upload metadata for asset in conversation '${conversation_et.id}': ${error.message}`;
         this.logger.warn(log, error);
 
-        if (error.type === z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+        if (error.type === ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
           throw error;
         }
       });
@@ -1990,7 +1991,7 @@ export class ConversationRepository {
         }
       })
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+        if (error.type !== ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
           throw error;
         }
 
@@ -2019,7 +2020,7 @@ export class ConversationRepository {
     }
 
     return this._send_and_inject_generic_message(conversationEntity, genericMessage).catch(error => {
-      if (error.type !== z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+      if (error.type !== ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
         this.logger.error(`Error while sending knock: ${error.message}`, error);
         throw error;
       }
@@ -2073,7 +2074,7 @@ export class ConversationRepository {
         }
       })
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND) {
+        if (error.type !== ConversationError.TYPE.MESSAGE_NOT_FOUND) {
           this.logger.warn(`Failed sending link preview for message '${messageId}' in '${conversationId}'`);
           throw error;
         }
@@ -2124,7 +2125,7 @@ export class ConversationRepository {
     const wasEdited = hasDifferentText || hasDifferentMentions;
 
     if (!wasEdited) {
-      return Promise.reject(new z.error.ConversationError(z.error.ConversationError.TYPE.NO_MESSAGE_CHANGES));
+      return Promise.reject(new ConversationError(ConversationError.TYPE.NO_MESSAGE_CHANGES));
     }
 
     const messageId = createRandomUuid();
@@ -2148,7 +2149,7 @@ export class ConversationRepository {
         return this.sendLinkPreview(conversationEntity, textMessage, genericMessage, mentionEntities);
       })
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+        if (error.type !== ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
           this.logger.error(`Error while editing message: ${error.message}`, error);
           throw error;
         }
@@ -2270,7 +2271,7 @@ export class ConversationRepository {
         return this.sendLinkPreview(conversationEntity, textMessage, genericMessage, mentionEntities, quoteEntity);
       })
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+        if (error.type !== ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
           this.logger.error(`Error while sending text message: ${error.message}`, error);
           throw error;
         }
@@ -2449,7 +2450,7 @@ export class ConversationRepository {
         }
       })
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND) {
+        if (error.type !== ConversationError.TYPE.MESSAGE_NOT_FOUND) {
           throw error;
         }
       });
@@ -2692,8 +2693,8 @@ export class ConversationRepository {
               },
               close: () => {
                 if (!sendAnyway) {
-                  const errorType = z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION;
-                  reject(new z.error.ConversationError(errorType));
+                  const errorType = ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION;
+                  reject(new ConversationError(errorType));
                 }
               },
               text: {
@@ -2774,7 +2775,7 @@ export class ConversationRepository {
         this.logger.info(`Finished to upload asset for conversation'${conversation_et.id} in ${upload_duration}`);
       })
       .catch(error => {
-        if (error.type === z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
+        if (error.type === ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
           throw error;
         }
 
@@ -2801,7 +2802,7 @@ export class ConversationRepository {
     return Promise.resolve()
       .then(() => {
         if (!messageEntity.user().is_me && !messageEntity.ephemeral_expires()) {
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_USER);
+          throw new ConversationError(ConversationError.TYPE.WRONG_USER);
         }
 
         const protoMessageDelete = new MessageDelete({messageId});
@@ -2915,7 +2916,7 @@ export class ConversationRepository {
 
       const isExpectedType = typesInSelfConversation.includes(type);
       if (!isExpectedType) {
-        return Promise.reject(new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_CONVERSATION));
+        return Promise.reject(new ConversationError(ConversationError.TYPE.WRONG_CONVERSATION));
       }
     }
 
@@ -2940,7 +2941,7 @@ export class ConversationRepository {
       .then(conversationEntity => this._reactToConversationEvent(conversationEntity, eventJson, eventSource))
       .then((entityObject = {}) => this._handleConversationNotification(entityObject, eventSource, previouslyArchived))
       .catch(error => {
-        const isMessageNotFound = error.type === z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND;
+        const isMessageNotFound = error.type === ConversationError.TYPE.MESSAGE_NOT_FOUND;
         if (!isMessageNotFound) {
           throw error;
         }
@@ -3211,7 +3212,7 @@ export class ConversationRepository {
     return this.get_message_in_conversation_by_id(conversation_et, event_json.id)
       .then(message_et => this.update_message_as_upload_complete(conversation_et, message_et, event_json))
       .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND) {
+        if (error.type !== ConversationError.TYPE.MESSAGE_NOT_FOUND) {
           throw error;
         }
 
@@ -3235,7 +3236,7 @@ export class ConversationRepository {
     return Promise.resolve(this.find_conversation_by_id(conversationId))
       .then(conversationEntity => {
         if (conversationEntity) {
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.NO_CHANGES);
+          throw new ConversationError(ConversationError.TYPE.NO_CHANGES);
         }
         return this.mapConversations(eventData, initialTimestamp);
       })
@@ -3252,7 +3253,7 @@ export class ConversationRepository {
         }
       })
       .catch(error => {
-        const isNoChanges = error.type === z.error.ConversationError.TYPE.NO_CHANGES;
+        const isNoChanges = error.type === ConversationError.TYPE.NO_CHANGES;
         if (!isNoChanges) {
           throw error;
         }
@@ -3399,12 +3400,12 @@ export class ConversationRepository {
     const isBackendEvent = eventData.otr_archived_ref || eventData.otr_muted_ref;
     const inSelfConversation = !this.self_conversation() || conversationId === this.self_conversation().id;
     if (!inSelfConversation && conversationId && !isBackendEvent) {
-      throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_CONVERSATION);
+      throw new ConversationError(ConversationError.TYPE.WRONG_CONVERSATION);
     }
 
     const isFromSelf = !this.selfUser() || from === this.selfUser().id;
     if (!isFromSelf) {
-      throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_USER);
+      throw new ConversationError(ConversationError.TYPE.WRONG_USER);
     }
 
     const isActiveConversation = this.is_active_conversation(conversationEntity);
@@ -3479,7 +3480,7 @@ export class ConversationRepository {
 
         const isSameSender = from === deletedMessageEntity.from;
         if (!isSameSender) {
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_USER);
+          throw new ConversationError(ConversationError.TYPE.WRONG_USER);
         }
 
         const isFromSelf = from === this.selfUser().id;
@@ -3492,7 +3493,7 @@ export class ConversationRepository {
         return this._delete_message_by_id(conversationEntity, eventData.message_id);
       })
       .catch(error => {
-        const isNotFound = error.type === z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND;
+        const isNotFound = error.type === ConversationError.TYPE.MESSAGE_NOT_FOUND;
         if (!isNotFound) {
           this.logger.info(`Failed to delete message for conversation '${conversationEntity.id}'`, error);
           throw error;
@@ -3514,12 +3515,12 @@ export class ConversationRepository {
       .then(() => {
         const inSelfConversation = !this.self_conversation() || conversationId === this.self_conversation().id;
         if (!inSelfConversation) {
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_CONVERSATION);
+          throw new ConversationError(ConversationError.TYPE.WRONG_CONVERSATION);
         }
 
         const isFromSelf = !this.selfUser() || from === this.selfUser().id;
         if (!isFromSelf) {
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_USER);
+          throw new ConversationError(ConversationError.TYPE.WRONG_USER);
         }
 
         return this.get_conversation_by_id(eventData.conversation_id);
@@ -3557,7 +3558,7 @@ export class ConversationRepository {
 
           const log = `Cannot react to '${type}' message '${messageId}' in conversation '${conversationId}'`;
           this.logger.error(log, messageEntity);
-          throw new z.error.ConversationError(z.error.ConversationError.TYPE.WRONG_TYPE);
+          throw new ConversationError(ConversationError.TYPE.WRONG_TYPE);
         }
 
         const changes = messageEntity.getUpdatedReactions(eventJson);
@@ -3570,7 +3571,7 @@ export class ConversationRepository {
         }
       })
       .catch(error => {
-        const isNotFound = error.type === z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND;
+        const isNotFound = error.type === ConversationError.TYPE.MESSAGE_NOT_FOUND;
         if (!isNotFound) {
           const log = `Failed to handle reaction to message '${messageId}' in conversation '${conversationId}'`;
           this.logger.error(log, {error, event: eventJson});

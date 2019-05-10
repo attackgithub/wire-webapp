@@ -23,7 +23,9 @@ import {getLogger} from 'Util/Logger';
 import {phoneNumberToE164, encodeSha256Base64} from 'Util/util';
 
 import {PhoneBook} from './PhoneBook';
+
 import {BackendClientError} from '../error/BackendClientError';
+import {ConnectError} from '../error/ConnectError';
 
 class ConnectRepository {
   constructor(connectService, propertiesRepository) {
@@ -79,7 +81,7 @@ class ConnectRepository {
   _parseMacosContacts() {
     return new Promise((resolve, reject) => {
       if (!window.wAddressBook) {
-        return reject(new z.error.ConnectError(z.error.ConnectError.TYPE.NOT_SUPPORTED));
+        return reject(new ConnectError(ConnectError.TYPE.NOT_SUPPORTED));
       }
       const addressBook = window.wAddressBook;
       const phoneBook = new PhoneBook();
@@ -124,7 +126,7 @@ class ConnectRepository {
 
     if (!cards.length) {
       this.logger.warn('No contacts found for upload');
-      throw new z.error.ConnectError(z.error.ConnectError.TYPE.NO_CONTACTS);
+      throw new ConnectError(ConnectError.TYPE.NO_CONTACTS);
     }
 
     this.logger.info(`Uploading hashes of '${cards.length}' contacts for matching`, phoneBook);
@@ -136,7 +138,7 @@ class ConnectRepository {
       })
       .catch(error => {
         switch (error.type) {
-          case z.error.ConnectError.TYPE.NO_CONTACTS:
+          case ConnectError.TYPE.NO_CONTACTS:
             return {};
           default:
             if (error.code === BackendClientError.STATUS_CODE.TOO_MANY_REQUESTS) {
@@ -144,7 +146,7 @@ class ConnectRepository {
             } else {
               this.logger.error(`Upload of '${source}' contacts failed`, error);
             }
-            throw new z.error.ConnectError(z.error.ConnectError.TYPE.UPLOAD);
+            throw new ConnectError(ConnectError.TYPE.UPLOAD);
         }
       });
   }

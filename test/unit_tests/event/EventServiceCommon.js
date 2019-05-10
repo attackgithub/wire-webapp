@@ -22,6 +22,7 @@ import {createRandomUuid} from 'Util/util';
 import {MessageCategory} from 'src/script/message/MessageCategory';
 import {AssetTransferState} from 'src/script/assets/AssetTransferState';
 import {StorageSchemata} from 'src/script/storage/StorageSchemata';
+import {ConversationError} from 'src/script/error/ConversationError';
 
 window.testEventServiceClass = (testedServiceName, className) => {
   describe(className, () => {
@@ -414,7 +415,7 @@ window.testEventServiceClass = (testedServiceName, className) => {
           .updateEventSequentially(12, updates)
           .then(fail)
           .catch(error => {
-            expect(error.type).toBe(z.error.ConversationError.TYPE.WRONG_CHANGE);
+            expect(error.type).toBe(ConversationError.TYPE.WRONG_CHANGE);
           });
       });
 
@@ -620,8 +621,8 @@ window.testEventServiceClass = (testedServiceName, className) => {
           .updateEvent(12, undefined)
           .then(() => fail('should have thrown'))
           .catch(error => {
-            expect(error).toEqual(jasmine.any(z.error.ConversationError));
-            expect(error.type).toBe(z.error.ConversationError.TYPE.NO_CHANGES);
+            expect(error).toEqual(jasmine.any(ConversationError));
+            expect(error.type).toBe(ConversationError.TYPE.NO_CHANGES);
           });
       });
     });

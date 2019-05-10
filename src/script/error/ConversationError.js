@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.ConversationError = class ConversationError extends BaseError {
+export class ConversationError extends BaseError {
   constructor(type, message) {
     super('ConversationError', type, message);
   }
@@ -58,4 +55,4 @@ z.error.ConversationError = class ConversationError extends BaseError {
       WRONG_USER: 'WRONG_USER',
     };
   }
-};
+}

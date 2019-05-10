@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.ConnectError = class ConnectError extends BaseError {
+export class ConnectError extends BaseError {
   constructor(type, message) {
     super('ConnectError', type, message);
   }
@@ -42,4 +39,4 @@ z.error.ConnectError = class ConnectError extends BaseError {
       UPLOAD: 'UPLOAD',
     };
   }
-};
+}

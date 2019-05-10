@@ -53,6 +53,7 @@ import {EventName} from '../tracking/EventName';
 
 import {ConversationRepository} from '../conversation/ConversationRepository';
 import {CallError} from '../error/CallError';
+import {ConversationError} from '../error/ConversationError';
 
 export class CallingRepository {
   static get CONFIG() {
@@ -640,7 +641,7 @@ export class CallingRepository {
           }
         })
         .catch(_error => {
-          const isDegraded = _error.type === z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION;
+          const isDegraded = _error.type === ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION;
           if (!isDegraded) {
             throw _error;
           }

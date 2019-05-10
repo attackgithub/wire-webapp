@@ -34,6 +34,7 @@ import {TERMINATION_REASON} from '../calling/enum/TerminationReason';
 import {ClientEvent} from '../event/Client';
 import {BackendEvent} from '../event/Backend';
 import {AssetRemoteData} from '../assets/AssetRemoteData';
+import {ConversationError} from '../error/ConversationError';
 
 import {SystemMessageType} from '../message/SystemMessageType';
 import {StatusType} from '../message/StatusType';
@@ -88,7 +89,7 @@ export class EventMapper {
     return Promise.resolve()
       .then(() => this._mapJsonEvent(event, conversationEntity))
       .catch(error => {
-        const isMessageNotFound = error.type === z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND;
+        const isMessageNotFound = error.type === ConversationError.TYPE.MESSAGE_NOT_FOUND;
         if (isMessageNotFound) {
           throw error;
         }
@@ -98,7 +99,7 @@ export class EventMapper {
         const customData = {eventTime: new Date(event.time).toISOString(), eventType: event.type};
         Raygun.send(new Error(errorMessage), customData);
 
-        throw new z.error.ConversationError(z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND);
+        throw new ConversationError(ConversationError.TYPE.MESSAGE_NOT_FOUND);
       });
   }
 
@@ -265,7 +266,7 @@ export class EventMapper {
 
       default: {
         this.logger.warn(`Ignored unhandled '${event.type}' event ${event.id ? `'${event.id}' ` : ''}`, event);
-        throw new z.error.ConversationError(z.error.ConversationError.TYPE.MESSAGE_NOT_FOUND);
+        throw new ConversationError(ConversationError.TYPE.MESSAGE_NOT_FOUND);
       }
     }
 

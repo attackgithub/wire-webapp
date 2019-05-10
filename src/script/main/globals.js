@@ -15,8 +15,6 @@ import configGlobal from '../config.js';
 
 import LocalizerUtilGlobal from 'Util/LocalizerUtil.js';
 
-import ConnectErrorGlobal from '../error/ConnectError.js';
-import ConnectionErrorGlobal from '../error/ConnectionError.js';
 import ConversationErrorGlobal from '../error/ConversationError.js';
 import CryptographyErrorGlobal from '../error/CryptographyError.js';
 import EventErrorGlobal from '../error/EventError.js';
