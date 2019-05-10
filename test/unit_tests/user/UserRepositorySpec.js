@@ -23,6 +23,7 @@ import {PropertiesRepository} from 'src/script/properties/PropertiesRepository';
 import {ReceiptMode} from 'src/script/conversation/ReceiptMode';
 import {User} from 'src/script/entity/User';
 import {EventRepository} from 'src/script/event/EventRepository';
+import {UserError} from 'src/script/error/UserError';
 
 describe('UserRepository', () => {
   let server = null;
@@ -181,7 +182,7 @@ describe('UserRepository', () => {
           .findUserById('1')
           .then(done.fail)
           .catch(error => {
-            expect(error.type).toBe(z.error.UserError.TYPE.USER_NOT_FOUND);
+            expect(error.type).toBe(UserError.TYPE.USER_NOT_FOUND);
             done();
           });
       });

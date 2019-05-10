@@ -28,7 +28,9 @@ import {MediaType} from '../../media/MediaType';
 
 import {WebAppEvents} from '../../event/WebApp';
 import {EventRepository} from '../../event/EventRepository';
+
 import {CallError} from '../../error/CallError';
+import {MediaError} from '../../error/MediaError';
 
 import {CallLogger} from '../../telemetry/calling/CallLogger';
 import {CallSetupSteps} from '../../telemetry/calling/CallSetupSteps';
@@ -398,7 +400,7 @@ class FlowEntity {
         };
         Raygun.send(new Error('Media Stream missing when negotiation call'), customData);
 
-        throw new z.error.MediaError(z.error.MediaError.TYPE.STREAM_NOT_FOUND);
+        throw new MediaError(MediaError.TYPE.STREAM_NOT_FOUND);
       }
 
       this._addMediaStream(mediaStream);

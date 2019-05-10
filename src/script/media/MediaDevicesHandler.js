@@ -25,6 +25,7 @@ import {koArrayPushAll} from 'Util/util';
 import {MediaRepository} from './MediaRepository';
 import {MediaType} from './MediaType';
 import {MediaDeviceType} from './MediaDeviceType';
+import {MediaError} from '../error/MediaError';
 
 export class MediaDevicesHandler {
   static get CONFIG() {
@@ -237,7 +238,7 @@ export class MediaDevicesHandler {
               }
 
               default: {
-                throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+                throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
               }
             }
           });
@@ -249,7 +250,7 @@ export class MediaDevicesHandler {
           this.logger.info('Updated MediaDevice list', mediaDevices);
           return mediaDevices;
         }
-        throw new z.error.MediaError(z.error.MediaError.TYPE.NO_MEDIA_DEVICES_FOUND);
+        throw new MediaError(MediaError.TYPE.NO_MEDIA_DEVICES_FOUND);
       });
   }
 

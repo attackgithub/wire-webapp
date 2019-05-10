@@ -15,13 +15,6 @@ import configGlobal from '../config.js';
 
 import LocalizerUtilGlobal from 'Util/LocalizerUtil.js';
 
-import ConversationErrorGlobal from '../error/ConversationError.js';
-import CryptographyErrorGlobal from '../error/CryptographyError.js';
-import EventErrorGlobal from '../error/EventError.js';
-import LinkPreviewErrorGlobal from '../error/LinkPreviewError.js';
-import MediaErrorGlobal from '../error/MediaError.js';
-import PermissionErrorGlobal from '../error/PermissionError.js';
-import StorageErrorGlobal from '../error/StorageError.js';
 import UserErrorGlobal from '../error/UserError.js';
 import LocalizerGlobal from '../localization/Localizer.js';
 import ErrorGlobal from '../backup/Error.js';

@@ -30,6 +30,9 @@ import {WebAppEvents} from '../event/WebApp';
 import {EventName} from '../tracking/EventName';
 import {WarningsViewModel} from '../view_model/WarningsViewModel';
 
+import {MediaError} from '../error/MediaError';
+import {PermissionError} from '../error/PermissionError';
+
 export class MediaStreamHandler {
   /**
    * Detect whether a MediaStream has a video MediaStreamTrack attached
@@ -57,7 +60,7 @@ export class MediaStreamHandler {
    */
   static getMediaTracks(mediaStream, mediaType = MediaType.AUDIO_VIDEO) {
     if (!mediaStream) {
-      throw new z.error.MediaError(z.error.MediaError.TYPE.STREAM_NOT_FOUND);
+      throw new MediaError(MediaError.TYPE.STREAM_NOT_FOUND);
     }
 
     switch (mediaType) {
@@ -75,7 +78,7 @@ export class MediaStreamHandler {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
   }
@@ -269,7 +272,7 @@ export class MediaStreamHandler {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
 
@@ -309,10 +312,8 @@ export class MediaStreamHandler {
       .then(() => this._hasPermissionToAccess(mediaType))
       .then(hasPermission => this._requestMediaStream(mediaType, mediaStreamConstraints, hasPermission))
       .catch(error => {
-        const isPermissionDenied = error.type === z.error.PermissionError.TYPE.DENIED;
-        throw isPermissionDenied
-          ? new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_PERMISSION, mediaType)
-          : error;
+        const isPermissionDenied = error.type === PermissionError.TYPE.DENIED;
+        throw isPermissionDenied ? new MediaError(MediaError.TYPE.MEDIA_STREAM_PERMISSION, mediaType) : error;
       });
   }
 
@@ -341,14 +342,14 @@ export class MediaStreamHandler {
     const videoTypes = [MediaType.AUDIO_VIDEO, MediaType.VIDEO];
     const noVideoTypes = !this.deviceSupport.videoInput() && videoTypes.includes(mediaType);
     if (noVideoTypes) {
-      const mediaError = new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaType.VIDEO);
+      const mediaError = new MediaError(MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaType.VIDEO);
       return Promise.reject(mediaError);
     }
 
     const audioTypes = [MediaType.AUDIO, MediaType.AUDIO_VIDEO];
     const noAudioDevice = !this.deviceSupport.audioInput() && audioTypes.includes(mediaType);
     if (noAudioDevice) {
-      const mediaError = new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaType.AUDIO);
+      const mediaError = new MediaError(MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaType.AUDIO);
       return Promise.reject(mediaError);
     }
 
@@ -380,7 +381,7 @@ export class MediaStreamHandler {
           const isPermissionDenied = permissionState === PermissionStatusState.DENIED;
           if (isPermissionDenied) {
             this.logger.warn(`Permission for '${permissionType}' is denied`, permissions);
-            return Promise.reject(new z.error.PermissionError(z.error.PermissionError.TYPE.DENIED));
+            return Promise.reject(new PermissionError(PermissionError.TYPE.DENIED));
           }
         }
 
@@ -499,7 +500,7 @@ export class MediaStreamHandler {
    * Local MediaStream creation failed.
    *
    * @private
-   * @param {z.error.MediaError} error - MediaError
+   * @param {MediaError} error - MediaError
    * @param {string} conversationId - Conversation ID
    * @returns {undefined} No return value
    */
@@ -507,7 +508,7 @@ export class MediaStreamHandler {
     const {type, mediaType} = error;
 
     if (mediaType) {
-      const isStreamDeviceError = type === z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE;
+      const isStreamDeviceError = type === MediaError.TYPE.MEDIA_STREAM_DEVICE;
       return isStreamDeviceError
         ? this._showDeviceNotFoundHint(mediaType, conversationId)
         : this._showPermissionDeniedHint(mediaType);
@@ -593,15 +594,15 @@ export class MediaStreamHandler {
         this._clearPermissionRequestHint(mediaType);
 
         if (MEDIA_STREAM_ERROR_TYPES.DEVICE.includes(name)) {
-          throw new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE, mediaType);
+          throw new MediaError(MediaError.TYPE.MEDIA_STREAM_DEVICE, mediaType);
         }
 
         if (MEDIA_STREAM_ERROR_TYPES.MISC.includes(name)) {
-          throw new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_MISC, mediaType);
+          throw new MediaError(MediaError.TYPE.MEDIA_STREAM_MISC, mediaType);
         }
 
         if (MEDIA_STREAM_ERROR_TYPES.PERMISSION.includes(name)) {
-          throw new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_PERMISSION, mediaType);
+          throw new MediaError(MediaError.TYPE.MEDIA_STREAM_PERMISSION, mediaType);
         }
 
         throw error;
@@ -624,7 +625,7 @@ export class MediaStreamHandler {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
   }
@@ -645,7 +646,7 @@ export class MediaStreamHandler {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
   }
@@ -748,7 +749,7 @@ export class MediaStreamHandler {
    */
   _updateMediaStream(mediaStreamInfo) {
     if (!this.localMediaStream()) {
-      return Promise.reject(new z.error.MediaError(z.error.MediaError.TYPE.STREAM_NOT_FOUND));
+      return Promise.reject(new MediaError(MediaError.TYPE.STREAM_NOT_FOUND));
     }
 
     const newMediaStream = mediaStreamInfo.stream;
@@ -777,7 +778,7 @@ export class MediaStreamHandler {
   addRemoteMediaStream(mediaStreamInfo) {
     const handledStreamTypes = [MediaType.AUDIO, MediaType.VIDEO, MediaType.AUDIO_VIDEO];
     if (!handledStreamTypes.includes(mediaStreamInfo.getType())) {
-      throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+      throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
     }
 
     this.remoteMediaStreamInfo.push(mediaStreamInfo);
@@ -881,7 +882,7 @@ export class MediaStreamHandler {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
   }

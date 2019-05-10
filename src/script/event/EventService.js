@@ -28,6 +28,7 @@ import {StorageSchemata} from '../storage/StorageSchemata';
 
 import {BaseError} from '../error/BaseError';
 import {ConversationError} from '../error/ConversationError';
+import {StorageError} from '../error/StorageError';
 
 /** Handles all databases interactions related to events */
 export class EventService {
@@ -305,7 +306,7 @@ export class EventService {
       return this.storageService.db.transaction('rw', this.EVENT_STORE_NAME, () => {
         return this.storageService.load(this.EVENT_STORE_NAME, key).then(record => {
           if (!record) {
-            throw new z.error.StorageError(z.error.StorageError.TYPE.NOT_FOUND);
+            throw new StorageError(StorageError.TYPE.NOT_FOUND);
           }
 
           const databaseVersion = record.version || 1;
@@ -324,7 +325,7 @@ export class EventService {
           this.logger.error(logMessage, logObject);
 
           Raygun.send(new Error(logMessage), logObject);
-          throw new z.error.StorageError(z.error.StorageError.TYPE.NON_SEQUENTIAL_UPDATE);
+          throw new StorageError(StorageError.TYPE.NON_SEQUENTIAL_UPDATE);
         });
       });
     });

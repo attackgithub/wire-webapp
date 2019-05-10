@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.EventError = class EventError extends BaseError {
+export class EventError extends BaseError {
   constructor(type, message) {
     super('EventError', type, message);
   }
@@ -56,4 +53,4 @@ z.error.EventError = class EventError extends BaseError {
       VALIDATION_FAILED: 'VALIDATION_FAILED',
     };
   }
-};
+}

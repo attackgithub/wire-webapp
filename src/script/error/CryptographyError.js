@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.CryptographyError = class CryptographyError extends BaseError {
+export class CryptographyError extends BaseError {
   constructor(type, message) {
     super('CryptographyError', type, message);
   }
@@ -50,4 +47,4 @@ z.error.CryptographyError = class CryptographyError extends BaseError {
       UNHANDLED_TYPE: 'UNHANDLED_TYPE',
     };
   }
-};
+}

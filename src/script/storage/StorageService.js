@@ -26,6 +26,7 @@ import {Config} from '../auth/config';
 import {StorageSchemata} from '../storage/StorageSchemata';
 import {StorageKey} from '../storage/StorageKey';
 import {ClientType} from '../client/ClientType';
+import {StorageError} from '../error/StorageError';
 
 export class StorageService {
   static get CONFIG() {
@@ -86,7 +87,7 @@ export class StorageService {
         .catch(error => {
           const logMessage = `Failed to initialize database '${this.dbName}': ${error.message || error}`;
           this.logger.error(logMessage, {error: error});
-          throw new z.error.StorageError(z.error.StorageError.TYPE.FAILED_TO_OPEN);
+          throw new StorageError(StorageError.TYPE.FAILED_TO_OPEN);
         });
     });
   }
@@ -172,7 +173,7 @@ export class StorageService {
         });
     }
 
-    return Promise.reject(new z.error.StorageError(z.error.StorageError.TYPE.DATA_STORE_NOT_FOUND));
+    return Promise.reject(new StorageError(StorageError.TYPE.DATA_STORE_NOT_FOUND));
   }
 
   /**
@@ -265,7 +266,7 @@ export class StorageService {
    */
   save(storeName, primaryKey, entity) {
     if (!entity) {
-      return Promise.reject(new z.error.StorageError(z.error.StorageError.TYPE.NO_DATA));
+      return Promise.reject(new StorageError(StorageError.TYPE.NO_DATA));
     }
 
     return this.db[storeName].put(entity, primaryKey).catch(error => {

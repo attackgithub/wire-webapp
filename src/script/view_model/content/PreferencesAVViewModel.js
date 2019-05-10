@@ -21,6 +21,7 @@ import {getLogger} from 'Util/Logger';
 import {Environment} from 'Util/Environment';
 import {Config} from '../../auth/config';
 import {MediaType} from '../../media/MediaType';
+import {MediaError} from '../../error/MediaError';
 
 window.z = window.z || {};
 window.z.viewModel = z.viewModel || {};
@@ -128,9 +129,7 @@ z.viewModel.content.PreferencesAVViewModel = class PreferencesAVViewModel {
       mediaType = this.deviceSupport.videoInput() ? MediaType.VIDEO : undefined;
     }
 
-    return mediaType
-      ? Promise.resolve(mediaType)
-      : Promise.reject(new z.error.MediaError(z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE));
+    return mediaType ? Promise.resolve(mediaType) : Promise.reject(new MediaError(MediaError.TYPE.MEDIA_STREAM_DEVICE));
   }
 
   /**
@@ -178,10 +177,7 @@ z.viewModel.content.PreferencesAVViewModel = class PreferencesAVViewModel {
       .catch(error => {
         this.logger.error(`Requesting MediaStream failed: ${error.message}`, error);
 
-        const expectedErrors = [
-          z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE,
-          z.error.MediaError.TYPE.MEDIA_STREAM_PERMISSION,
-        ];
+        const expectedErrors = [MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaError.TYPE.MEDIA_STREAM_PERMISSION];
 
         const isExpectedError = expectedErrors.includes(error.type);
         if (isExpectedError) {

@@ -24,13 +24,12 @@ export class BaseError extends Error {
     this.name = this.constructor.name;
     this.stack = new Error().stack;
 
-    const ErrorInstanceClass = z.error[name];
-    const knownTypes = Object.assign({}, BaseError.TYPE, ErrorInstanceClass.TYPE);
+    const knownTypes = Object.assign({}, BaseError.TYPE, this.TYPE);
     const isValidType = Object.values(knownTypes).includes(type);
 
     this.type = isValidType ? type : BaseError.TYPE.UNKNOWN;
 
-    this.message = message || ErrorInstanceClass.MESSAGE[this.type] || BaseError.MESSAGE[this.type];
+    this.message = message || this.MESSAGE[this.type] || BaseError.MESSAGE[this.type];
     if (!this.message) {
       this.message = `${BaseError.MESSAGE.UNKNOWN} ${name}`;
     }

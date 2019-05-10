@@ -34,6 +34,8 @@ import {ClientEntity} from '../client/ClientEntity';
 
 import {BackendClientError} from '../error/BackendClientError';
 import {ClientError} from '../error/ClientError';
+import {CryptographyError} from '../error/CryptographyError';
+import {UserError} from '../error/UserError';
 
 export class CryptographyRepository {
   static get CONFIG() {
@@ -176,11 +178,11 @@ export class CryptographyRepository {
       .catch(error => {
         const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
         if (isNotFound) {
-          throw new z.error.UserError(z.error.UserError.TYPE.PRE_KEY_NOT_FOUND);
+          throw new UserError(UserError.TYPE.PRE_KEY_NOT_FOUND);
         }
 
         this.logger.error(`Failed to get pre-key from backend: ${error.message}`);
-        throw new z.error.UserError(z.error.UserError.TYPE.REQUEST_FAILURE);
+        throw new UserError(UserError.TYPE.REQUEST_FAILURE);
       });
   }
 
@@ -193,11 +195,11 @@ export class CryptographyRepository {
     return this.cryptographyService.getUsersPreKeys(recipients).catch(error => {
       const isNotFound = error.code === BackendClientError.STATUS_CODE.NOT_FOUND;
       if (isNotFound) {
-        throw new z.error.UserError(z.error.UserError.TYPE.PRE_KEY_NOT_FOUND);
+        throw new UserError(UserError.TYPE.PRE_KEY_NOT_FOUND);
       }
 
       this.logger.error(`Failed to get pre-key from backend: ${error.message}`);
-      throw new z.error.UserError(z.error.UserError.TYPE.REQUEST_FAILURE);
+      throw new UserError(UserError.TYPE.REQUEST_FAILURE);
     });
   }
 
@@ -293,7 +295,7 @@ export class CryptographyRepository {
       const logMessage = `Encrypted event with ID '${id}' from user '${userId}' does not have a 'data' property.`;
       this.logger.error(logMessage, event);
 
-      return Promise.reject(new z.error.CryptographyError(z.error.CryptographyError.TYPE.NO_DATA_CONTENT));
+      return Promise.reject(new CryptographyError(CryptographyError.TYPE.NO_DATA_CONTENT));
     }
 
     // Check the length of the message
@@ -315,7 +317,7 @@ export class CryptographyRepository {
     return this._decryptEvent(event)
       .then(genericMessage => this.cryptographyMapper.mapGenericMessage(genericMessage, event))
       .catch(error => {
-        const isUnhandledType = error.type === z.error.CryptographyError.TYPE.UNHANDLED_TYPE;
+        const isUnhandledType = error.type === CryptographyError.TYPE.UNHANDLED_TYPE;
         if (isUnhandledType) {
           throw error;
         }
@@ -478,12 +480,12 @@ export class CryptographyRepository {
     const isOutdatedMessage = error instanceof ProteusErrors.DecryptError.OutdatedMessage;
     // We don't need to show these message errors to the user
     if (isDuplicateMessage || isOutdatedMessage) {
-      throw new z.error.CryptographyError(z.error.CryptographyError.TYPE.UNHANDLED_TYPE);
+      throw new CryptographyError(CryptographyError.TYPE.UNHANDLED_TYPE);
     }
 
-    const isCryptographyError = error instanceof z.error.CryptographyError;
-    if (isCryptographyError && error.type === z.error.CryptographyError.TYPE.PREVIOUSLY_STORED) {
-      throw new z.error.CryptographyError(z.error.CryptographyError.TYPE.UNHANDLED_TYPE);
+    const isCryptographyError = error instanceof CryptographyError;
+    if (isCryptographyError && error.type === CryptographyError.TYPE.PREVIOUSLY_STORED) {
+      throw new CryptographyError(CryptographyError.TYPE.UNHANDLED_TYPE);
     }
 
     const remoteClientId = eventData.sender;

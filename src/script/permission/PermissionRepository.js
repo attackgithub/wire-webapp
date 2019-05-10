@@ -22,6 +22,7 @@ import {Environment} from 'Util/Environment';
 
 import {PermissionStatusState} from './PermissionStatusState';
 import {PermissionType} from './PermissionType';
+import {PermissionError} from '../error/PermissionError';
 
 /**
  * Permission repository to check browser permissions.
@@ -53,12 +54,12 @@ export class PermissionRepository {
       const setPermissionState = permissionState => this.permissionState[permissionType](permissionState);
 
       if (!Environment.browser.supports.permissions) {
-        throw new z.error.PermissionError(z.error.PermissionError.TYPE.UNSUPPORTED);
+        throw new PermissionError(PermissionError.TYPE.UNSUPPORTED);
       }
 
       const isMediaPermission = PermissionRepository.CONFIG.MEDIA_TYPES.includes(permissionType);
       if (isMediaPermission && !Environment.browser.supports.mediaPermissions) {
-        throw new z.error.PermissionError(z.error.PermissionError.TYPE.UNSUPPORTED_TYPE);
+        throw new PermissionError(PermissionError.TYPE.UNSUPPORTED_TYPE);
       }
 
       return navigator.permissions.query({name: permissionType}).then(permissionStatus => {

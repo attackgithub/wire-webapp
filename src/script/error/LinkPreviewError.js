@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.LinkPreviewError = class LinkPreviewError extends BaseError {
+export class LinkPreviewError extends BaseError {
   constructor(type, message) {
     super('LinkPreviewError', type, message);
   }
@@ -44,4 +41,4 @@ z.error.LinkPreviewError = class LinkPreviewError extends BaseError {
       UNSUPPORTED_TYPE: 'UNSUPPORTED_TYPE',
     };
   }
-};
+}

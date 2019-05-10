@@ -44,6 +44,7 @@ import {WarningsViewModel} from '../view_model/WarningsViewModel';
 import {CallMessageMapper} from './CallMessageMapper';
 
 import {EventInfoEntity} from '../conversation/EventInfoEntity';
+import {ConversationRepository} from '../conversation/ConversationRepository';
 import {MediaType} from '../media/MediaType';
 
 import {ClientEvent} from '../event/Client';
@@ -51,9 +52,9 @@ import {WebAppEvents} from '../event/WebApp';
 import {EventRepository} from '../event/EventRepository';
 import {EventName} from '../tracking/EventName';
 
-import {ConversationRepository} from '../conversation/ConversationRepository';
 import {CallError} from '../error/CallError';
 import {ConversationError} from '../error/ConversationError';
+import {MediaError} from '../error/MediaError';
 
 export class CallingRepository {
   static get CONFIG() {
@@ -1120,7 +1121,7 @@ export class CallingRepository {
     const isNotSupported = error.type === CallError.TYPE.NOT_SUPPORTED;
     if (!isNotSupported) {
       this.deleteCall(conversationId);
-      const isMediaError = error instanceof z.error.MediaError;
+      const isMediaError = error instanceof MediaError;
       if (!isMediaError) {
         throw error;
       }
@@ -1158,10 +1159,7 @@ export class CallingRepository {
         const logMessage = `Failed to join call in '${callEntity.state()}' conversation '${conversationId}'`;
         this.callLogger.warn(logMessage, joinError);
 
-        const accessErrors = [
-          z.error.MediaError.TYPE.MEDIA_STREAM_DEVICE,
-          z.error.MediaError.TYPE.MEDIA_STREAM_PERMISSION,
-        ];
+        const accessErrors = [MediaError.TYPE.MEDIA_STREAM_DEVICE, MediaError.TYPE.MEDIA_STREAM_PERMISSION];
         const isAccessError = accessErrors.includes(joinError.type);
         if (isAccessError) {
           this.mediaRepository.showNoCameraModal();
@@ -1340,7 +1338,7 @@ export class CallingRepository {
       }
 
       default: {
-        throw new z.error.MediaError(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        throw new MediaError(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     }
   }
@@ -1432,7 +1430,7 @@ export class CallingRepository {
       .catch(error => {
         this.deleteCall(conversationId);
 
-        const isMediaError = error instanceof z.error.MediaError;
+        const isMediaError = error instanceof MediaError;
         if (!isMediaError) {
           throw error;
         }

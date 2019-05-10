@@ -19,6 +19,7 @@
 
 import {resolve, graph} from '../../api/testResolver';
 import {StorageSchemata} from 'src/script/storage/StorageSchemata';
+import {StorageError} from 'src/script/error/StorageError';
 
 describe('StorageRepository', () => {
   describe('save', () => {
@@ -28,7 +29,7 @@ describe('StorageRepository', () => {
         .save(StorageSchemata.OBJECT_STORE.AMPLIFY, 'primary_key', null)
         .then(fail)
         .catch(error => {
-          expect(error.type).toEqual(z.error.StorageError.TYPE.NO_DATA);
+          expect(error.type).toEqual(StorageError.TYPE.NO_DATA);
         });
     });
   });

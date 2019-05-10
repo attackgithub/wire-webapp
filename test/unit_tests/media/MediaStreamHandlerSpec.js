@@ -19,6 +19,7 @@
 
 import {resolve, graph} from '../../api/testResolver';
 import {MediaType} from 'src/script/media/MediaType';
+import {MediaError} from 'src/script/error/MediaError';
 
 describe('MediaStreamHandler', () => {
   let streamHandler;
@@ -34,8 +35,8 @@ describe('MediaStreamHandler', () => {
       try {
         streamHandler.addRemoteMediaStream(newMediaStream);
       } catch (error) {
-        expect(error instanceof z.error.MediaError).toBe(true);
-        expect(error.type).toEqual(z.error.MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
+        expect(error instanceof MediaError).toBe(true);
+        expect(error.type).toEqual(MediaError.TYPE.UNHANDLED_MEDIA_TYPE);
       }
     });
 

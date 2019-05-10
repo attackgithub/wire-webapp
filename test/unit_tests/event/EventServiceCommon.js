@@ -22,7 +22,9 @@ import {createRandomUuid} from 'Util/util';
 import {MessageCategory} from 'src/script/message/MessageCategory';
 import {AssetTransferState} from 'src/script/assets/AssetTransferState';
 import {StorageSchemata} from 'src/script/storage/StorageSchemata';
+
 import {ConversationError} from 'src/script/error/ConversationError';
+import {StorageError} from 'src/script/error/StorageError';
 
 window.testEventServiceClass = (testedServiceName, className) => {
   describe(className, () => {
@@ -428,7 +430,7 @@ window.testEventServiceClass = (testedServiceName, className) => {
           .updateEventSequentially(12, updates)
           .then(fail)
           .catch(error => {
-            expect(error.type).toBe(z.error.StorageError.TYPE.NON_SEQUENTIAL_UPDATE);
+            expect(error.type).toBe(StorageError.TYPE.NON_SEQUENTIAL_UPDATE);
           });
       });
 
@@ -442,7 +444,7 @@ window.testEventServiceClass = (testedServiceName, className) => {
           .updateEventSequentially(12, updates)
           .then(fail)
           .catch(error => {
-            expect(error.type).toBe(z.error.StorageError.TYPE.NOT_FOUND);
+            expect(error.type).toBe(StorageError.TYPE.NOT_FOUND);
           });
       });
 

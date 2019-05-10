@@ -21,6 +21,7 @@ import {getLogger} from 'Util/Logger';
 import {Environment} from 'Util/Environment';
 
 import {VIDEO_QUALITY_MODE} from './VideoQualityMode';
+import {MediaError} from '../error/MediaError';
 
 export class MediaConstraintsHandler {
   static get CONFIG() {
@@ -160,7 +161,7 @@ export class MediaConstraintsHandler {
       return Promise.resolve(streamConstraints);
     }
 
-    return Promise.reject(new z.error.MediaError(z.error.MediaError.TYPE.SCREEN_NOT_SUPPORTED));
+    return Promise.reject(new MediaError(MediaError.TYPE.SCREEN_NOT_SUPPORTED));
   }
 
   /**

@@ -27,7 +27,10 @@ import {AssetUploadFailedReason} from '../assets/AssetUploadFailedReason';
 import {AssetTransferState} from '../assets/AssetTransferState';
 import {WarningsViewModel} from '../view_model/WarningsViewModel';
 import {categoryFromEvent} from '../message/MessageCategorization';
+
 import {BackendClientError} from '../error/BackendClientError';
+import {CryptographyError} from '../error/CryptographyError';
+import {EventError} from '../error/EventError';
 
 import {EVENT_TYPE} from './EventType';
 import {ClientEvent} from './Client';
@@ -41,12 +44,12 @@ export class EventRepository {
     return {
       E_CALL_EVENT_LIFETIME: TIME_IN_MILLIS.SECOND * 30,
       IGNORED_ERRORS: [
-        z.error.CryptographyError.TYPE.IGNORED_ASSET,
-        z.error.CryptographyError.TYPE.IGNORED_PREVIEW,
-        z.error.CryptographyError.TYPE.PREVIOUSLY_STORED,
-        z.error.CryptographyError.TYPE.UNHANDLED_TYPE,
-        z.error.EventError.TYPE.OUTDATED_E_CALL_EVENT,
-        z.error.EventError.TYPE.VALIDATION_FAILED,
+        CryptographyError.TYPE.IGNORED_ASSET,
+        CryptographyError.TYPE.IGNORED_PREVIEW,
+        CryptographyError.TYPE.PREVIOUSLY_STORED,
+        CryptographyError.TYPE.UNHANDLED_TYPE,
+        EventError.TYPE.OUTDATED_E_CALL_EVENT,
+        EventError.TYPE.VALIDATION_FAILED,
       ],
       NOTIFICATION_BATCHES: {
         INITIAL: 500,
@@ -188,7 +191,7 @@ export class EventRepository {
    */
   connectWebSocket() {
     if (!this.currentClient().id) {
-      throw new z.error.EventError(z.error.EventError.TYPE.NO_CLIENT_ID);
+      throw new EventError(EventError.TYPE.NO_CLIENT_ID);
     }
 
     this.webSocketService.clientId = this.currentClient().id;
@@ -280,7 +283,7 @@ export class EventRepository {
           return notificationId;
         }
         this.logger.info(`No notifications found since '${notificationId}'`);
-        return reject(new z.error.EventError(z.error.EventError.TYPE.NO_NOTIFICATIONS));
+        return reject(new EventError(EventError.TYPE.NO_NOTIFICATIONS));
       };
 
       return this.notificationService
@@ -297,11 +300,11 @@ export class EventRepository {
           const isNotFound = errorResponse.code === BackendClientError.STATUS_CODE.NOT_FOUND;
           if (isNotFound) {
             this.logger.info(`No notifications found since '${notificationId}'`, errorResponse);
-            return reject(new z.error.EventError(z.error.EventError.TYPE.NO_NOTIFICATIONS));
+            return reject(new EventError(EventError.TYPE.NO_NOTIFICATIONS));
           }
 
           this.logger.error(`Failed to get notifications: ${errorResponse.message}`, errorResponse);
-          return reject(new z.error.EventError(z.error.EventError.TYPE.REQUEST_FAILURE));
+          return reject(new EventError(EventError.TYPE.REQUEST_FAILURE));
         });
     });
   }
@@ -314,7 +317,7 @@ export class EventRepository {
     return this.notificationService
       .getLastNotificationIdFromDb()
       .catch(error => {
-        const isNoLastId = error.type === z.error.EventError.TYPE.NO_LAST_ID;
+        const isNoLastId = error.type === EventError.TYPE.NO_LAST_ID;
         if (!isNoLastId) {
           throw error;
         }
@@ -331,7 +334,7 @@ export class EventRepository {
       })
       .then(eventDate => this.lastEventDate(eventDate))
       .catch(error => {
-        const isNoLastDate = error.type === z.error.EventError.TYPE.NO_LAST_DATE;
+        const isNoLastDate = error.type === EventError.TYPE.NO_LAST_DATE;
         if (!isNoLastDate) {
           throw error;
         }
@@ -352,7 +355,7 @@ export class EventRepository {
       .catch(error => {
         this.notificationHandlingState(NOTIFICATION_HANDLING_STATE.WEB_SOCKET);
 
-        const isNoLastId = error.type === z.error.EventError.TYPE.NO_LAST_ID;
+        const isNoLastId = error.type === EventError.TYPE.NO_LAST_ID;
         if (isNoLastId) {
           this.logger.info('No notifications found for this user', error);
           return 0;
@@ -375,7 +378,7 @@ export class EventRepository {
         this.logger.info(`Retrieved '${numberOfNotifications}' notifications from stream after connectivity loss`);
       })
       .catch(error => {
-        const isNoNotifications = error.type === z.error.EventError.TYPE.NO_NOTIFICATIONS;
+        const isNoNotifications = error.type === EventError.TYPE.NO_NOTIFICATIONS;
         if (!isNoNotifications) {
           this.logger.error(`Failed to recover from notification stream: ${error.message}`, error);
           this.notificationHandlingState(NOTIFICATION_HANDLING_STATE.WEB_SOCKET);
@@ -473,7 +476,7 @@ export class EventRepository {
       .catch(error => {
         this.notificationHandlingState(NOTIFICATION_HANDLING_STATE.WEB_SOCKET);
 
-        const isNoNotifications = error.type === z.error.EventError.TYPE.NO_NOTIFICATIONS;
+        const isNoNotifications = error.type === EventError.TYPE.NO_NOTIFICATIONS;
         if (isNoNotifications) {
           this.logger.info('No notifications found for this user', error);
           return 0;
@@ -539,7 +542,7 @@ export class EventRepository {
    */
   injectEvent(event, source = EventRepository.SOURCE.INJECTED) {
     if (!event) {
-      throw new z.error.EventError(z.error.EventError.TYPE.NO_EVENT);
+      throw new EventError(EventError.TYPE.NO_EVENT);
     }
 
     const isHandlingWebSocket = this.notificationHandlingState() === NOTIFICATION_HANDLING_STATE.WEB_SOCKET;
@@ -853,7 +856,7 @@ export class EventRepository {
     const baseLogMessage = `Ignored '${event.type}' (${event.id}) in '${event.conversation}' from '${event.from}':'`;
     const baseErrorMessage = 'Event validation failed:';
     this.logger.warn(`${baseLogMessage} ${logMessage || errorMessage}`, event);
-    throw new z.error.EventError(z.error.EventError.TYPE.VALIDATION_FAILED, `${baseErrorMessage} ${errorMessage}`);
+    throw new EventError(EventError.TYPE.VALIDATION_FAILED, `${baseErrorMessage} ${errorMessage}`);
   }
 
   /**
@@ -872,7 +875,7 @@ export class EventRepository {
       if (isIgnoredEvent) {
         this.logger.info(`Event ignored: '${event.type}'`, {event_json: JSON.stringify(event), event_object: event});
         const errorMessage = 'Event ignored: Type ignored';
-        throw new z.error.EventError(z.error.EventError.TYPE.VALIDATION_FAILED, errorMessage);
+        throw new EventError(EventError.TYPE.VALIDATION_FAILED, errorMessage);
       }
 
       const eventFromStream = source === EventRepository.SOURCE.STREAM;
@@ -884,7 +887,7 @@ export class EventRepository {
           const logObject = {eventJson: JSON.stringify(event), eventObject: event};
           this.logger.info(`Event from stream skipped as outdated: '${eventType}'`, logObject);
           const errorMessage = 'Event validation failed: Outdated timestamp';
-          throw new z.error.EventError(z.error.EventError.TYPE.VALIDATION_FAILED, errorMessage);
+          throw new EventError(EventError.TYPE.VALIDATION_FAILED, errorMessage);
         }
       }
 
@@ -951,6 +954,6 @@ export class EventRepository {
       localTime: new Date(correctedTimestamp).toISOString(),
     };
     this.logger.info(logMessage, logObject);
-    throw new z.error.EventError(z.error.EventError.TYPE.OUTDATED_E_CALL_EVENT);
+    throw new EventError(EventError.TYPE.OUTDATED_E_CALL_EVENT);
   }
 }

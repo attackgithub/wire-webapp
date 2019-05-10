@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.UserError = class UserError extends BaseError {
+export class UserError extends BaseError {
   constructor(type, message) {
     super('UserError', type, message);
   }
@@ -48,4 +45,4 @@ z.error.UserError = class UserError extends BaseError {
       USERNAME_TAKEN: 'USERNAME_TAKEN',
     };
   }
-};
+}

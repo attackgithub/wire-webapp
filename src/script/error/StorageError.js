@@ -19,10 +19,7 @@
 
 import {BaseError} from './BaseError';
 
-window.z = window.z || {};
-window.z.error = z.error || {};
-
-z.error.StorageError = class StorageError extends BaseError {
+export class StorageError extends BaseError {
   constructor(type, message) {
     super('StorageError', type, message);
   }
@@ -56,4 +53,4 @@ z.error.StorageError = class StorageError extends BaseError {
       NOT_FOUND: 'NOT_FOUND',
     };
   }
-};
+}

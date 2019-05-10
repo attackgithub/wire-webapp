@@ -51,6 +51,7 @@ import {UserMapper} from './UserMapper';
 
 import {BaseError} from '../error/BaseError';
 import {BackendClientError} from '../error/BackendClientError';
+import {UserError} from '../error/UserError';
 
 export class UserRepository {
   static get CONFIG() {
@@ -446,13 +447,13 @@ export class UserRepository {
    */
   findUserById(userId) {
     if (!userId) {
-      return Promise.reject(new z.error.UserError(BaseError.TYPE.MISSING_PARAMETER));
+      return Promise.reject(new UserError(BaseError.TYPE.MISSING_PARAMETER));
     }
 
     const matchingUserEntity = this.users().find(userEntity => userEntity.id === userId);
     return matchingUserEntity
       ? Promise.resolve(matchingUserEntity)
-      : Promise.reject(new z.error.UserError(z.error.UserError.TYPE.USER_NOT_FOUND));
+      : Promise.reject(new UserError(UserError.TYPE.USER_NOT_FOUND));
   }
 
   /**
@@ -506,14 +507,14 @@ export class UserRepository {
   get_user_by_id(user_id) {
     return this.findUserById(user_id)
       .catch(error => {
-        const isNotFound = error.type === z.error.UserError.TYPE.USER_NOT_FOUND;
+        const isNotFound = error.type === UserError.TYPE.USER_NOT_FOUND;
         if (isNotFound) {
           return this._fetchUserById(user_id);
         }
         throw error;
       })
       .catch(error => {
-        const isNotFound = error.type === z.error.UserError.TYPE.USER_NOT_FOUND;
+        const isNotFound = error.type === UserError.TYPE.USER_NOT_FOUND;
         if (!isNotFound) {
           this.logger.warn(`Failed to find user with ID '${user_id}': ${error.message}`, error);
         }
@@ -545,7 +546,7 @@ export class UserRepository {
 
     const _find_user = user_id => {
       return this.findUserById(user_id).catch(error => {
-        if (error.type !== z.error.UserError.TYPE.USER_NOT_FOUND) {
+        if (error.type !== UserError.TYPE.USER_NOT_FOUND) {
           throw error;
         }
         return user_id;
@@ -586,7 +587,7 @@ export class UserRepository {
    */
   save_user(user_et, is_me = false) {
     return this.findUserById(user_et.id).catch(error => {
-      if (error.type !== z.error.UserError.TYPE.USER_NOT_FOUND) {
+      if (error.type !== UserError.TYPE.USER_NOT_FOUND) {
         throw error;
       }
 
@@ -609,7 +610,7 @@ export class UserRepository {
       return this.findUserById(user_et.id)
         .then(() => undefined)
         .catch(error => {
-          if (error.type !== z.error.UserError.TYPE.USER_NOT_FOUND) {
+          if (error.type !== UserError.TYPE.USER_NOT_FOUND) {
             throw error;
           }
           return user_et;
@@ -632,7 +633,7 @@ export class UserRepository {
   updateUserById(userId) {
     const getLocalUser = () =>
       this.findUserById(userId).catch(error => {
-        const isNotFound = error.type === z.error.UserError.TYPE.USER_NOT_FOUND;
+        const isNotFound = error.type === UserError.TYPE.USER_NOT_FOUND;
         if (isNotFound) {
           return new User();
         }
@@ -691,7 +692,7 @@ export class UserRepository {
       return this.selfService.putSelf({name}).then(() => this.user_update({user: {id: this.self().id, name: name}}));
     }
 
-    return Promise.reject(new z.error.UserError(z.userUserError.TYPE.INVALID_UPDATE));
+    return Promise.reject(new UserError(z.userUserError.TYPE.INVALID_UPDATE));
   }
 
   /**
@@ -744,13 +745,13 @@ export class UserRepository {
           if (
             [BackendClientError.STATUS_CODE.CONFLICT, BackendClientError.STATUS_CODE.BAD_REQUEST].includes(error_code)
           ) {
-            throw new z.error.UserError(z.error.UserError.TYPE.USERNAME_TAKEN);
+            throw new UserError(UserError.TYPE.USERNAME_TAKEN);
           }
-          throw new z.error.UserError(z.error.UserError.TYPE.REQUEST_FAILURE);
+          throw new UserError(UserError.TYPE.REQUEST_FAILURE);
         });
     }
 
-    return Promise.reject(new z.error.UserError(z.userUserError.TYPE.INVALID_UPDATE));
+    return Promise.reject(new UserError(z.userUserError.TYPE.INVALID_UPDATE));
   }
 
   /**
@@ -775,15 +776,15 @@ export class UserRepository {
           return username;
         }
         if (error_code === BackendClientError.STATUS_CODE.BAD_REQUEST) {
-          throw new z.error.UserError(z.error.UserError.TYPE.USERNAME_TAKEN);
+          throw new UserError(UserError.TYPE.USERNAME_TAKEN);
         }
-        throw new z.error.UserError(z.error.UserError.TYPE.REQUEST_FAILURE);
+        throw new UserError(UserError.TYPE.REQUEST_FAILURE);
       })
       .then(verified_username => {
         if (verified_username) {
           return verified_username;
         }
-        throw new z.error.UserError(z.error.UserError.TYPE.USERNAME_TAKEN);
+        throw new UserError(UserError.TYPE.USERNAME_TAKEN);
       });
   }
 

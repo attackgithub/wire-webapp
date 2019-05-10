@@ -20,6 +20,7 @@
 import {getLogger} from 'Util/Logger';
 
 import {StorageSchemata} from '../storage/StorageSchemata';
+import {StorageError} from '../error/StorageError';
 
 export class StorageRepository {
   static get CONFIG() {
@@ -85,7 +86,7 @@ export class StorageRepository {
       if (record && record.value) {
         return record.value;
       }
-      throw new z.error.StorageError(z.error.StorageError.TYPE.NOT_FOUND);
+      throw new StorageError(StorageError.TYPE.NOT_FOUND);
     });
   }
 
