@@ -92,9 +92,11 @@ module.exports = {
   ],
   resolve: {
     alias: {
+      // FIXME publish avs-web as a package
       Components: path.resolve(srcScript, 'components'),
       Resource: path.resolve(ROOT_PATH, 'resource'),
       Util: path.resolve(srcScript, 'util'),
+      'avs-web': path.resolve('package'),
       // override phoneformat export, because the 'main' file is not exporting anything
       'phoneformat.js': path.resolve(ROOT_PATH, 'node_modules/phoneformat.js/dist/phone-format-global.js'),
     },

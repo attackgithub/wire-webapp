@@ -17,7 +17,8 @@
     "paths": {
       "Components/*": ["./src/script/components/*"],
       "Resource/*": ["./resource/*"],
-      "Util/*": ["./src/script/util/*"]
+      "Util/*": ["./src/script/util/*"],
+      "avs-web": ["./package/"]
     },
     "rootDirs": ["src/script"],
     "sourceMap": true,
