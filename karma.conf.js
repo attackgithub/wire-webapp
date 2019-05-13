@@ -22,7 +22,7 @@ const rootWebpackConfig = require('./webpack.config.common.js');
 const webpack = require('webpack');
 const {SRC_PATH} = require('./locations');
 
-const testCode = 'src/script/**/*.test.ts';
+const testCode = 'src/script/**/*.test.*';
 
 function getSpecs(specList) {
   if (specList) {
@@ -101,7 +101,11 @@ module.exports = function(config) {
     singleRun: true,
     webpack: {
       externals: {
+        cheerio: 'window',
         'fs-extra': '{}',
+        'react/addons': true,
+        'react/lib/ExecutionEnvironment': true,
+        'react/lib/ReactContext': true,
       },
       mode: 'development',
       module: {
@@ -133,11 +137,11 @@ module.exports = function(config) {
         path: 'empty',
       },
       plugins: [
-        new webpack.ProvidePlugin({
-          $: 'jquery',
-          _: 'underscore',
-          jQuery: 'jquery',
-          ko: 'knockout',
+        ...rootWebpackConfig.plugins,
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('test'),
+          },
         }),
       ],
       resolve: {

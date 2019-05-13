@@ -19,7 +19,8 @@
 
 import {APIClient} from '@wireapp/api-client';
 import {MemoryEngine} from '@wireapp/store-engine/dist/commonjs/engine';
-import {mount} from 'enzyme';
+import {configure, mount} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import * as React from 'react';
 import {IntlProvider} from 'react-intl';
 import {Provider} from 'react-redux';
@@ -28,6 +29,8 @@ import {Store} from 'redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import {RootState} from '../module/reducer';
+
+configure({adapter: new Adapter()});
 
 const engine = new MemoryEngine();
 engine.init('test-execution');
