@@ -346,12 +346,11 @@ window.TestFactory.prototype.exposeConversationActors = function() {
 window.TestFactory.prototype.exposeCallingActors = function() {
   return this.exposeConversationActors().then(() => {
     TestFactory.calling_repository = new CallingRepository(
-      resolveDependency(graph.CallingService),
-      TestFactory.client_repository,
+      resolveDependency(graph.BackendClient),
       TestFactory.conversation_repository,
       TestFactory.event_repository,
       resolveDependency(graph.MediaRepository),
-      TestFactory.user_repository
+      serverTimeHandler
     );
 
     return TestFactory.calling_repository;
