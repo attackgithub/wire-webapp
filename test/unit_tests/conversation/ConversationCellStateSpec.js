@@ -25,6 +25,9 @@ import {User} from 'src/script/entity/User';
 import {NOTIFICATION_STATE} from 'src/script/conversation/NotificationSetting';
 import {ConversationStatusIcon} from 'src/script/conversation/ConversationStatusIcon';
 import {generateCellState} from 'src/script/conversation/ConversationCellState';
+import {TextEntity} from 'src/script/entity/message/Text';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
+import {PingMessageEntity} from 'src/script/entity/message/PingMessage';
 
 describe('ConversationCellState', () => {
   describe('Notification state icon', () => {
@@ -74,12 +77,12 @@ describe('ConversationCellState', () => {
 
     conversationEntity.mutedState(NOTIFICATION_STATE.EVERYTHING);
 
-    const contentMessage = new z.entity.ContentMessage();
-    const text = new z.entity.Text('id', 'Hello there');
+    const contentMessage = new ContentMessageEntity();
+    const text = new TextEntity('id', 'Hello there');
     contentMessage.unsafeSenderName = () => 'Felix';
     contentMessage.assets([text]);
 
-    const pingMessage = new z.entity.PingMessage();
+    const pingMessage = new PingMessageEntity();
 
     const tests = [
       {

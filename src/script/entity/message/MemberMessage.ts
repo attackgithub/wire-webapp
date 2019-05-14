@@ -17,27 +17,42 @@
  *
  */
 
-import {t, Declension, joinNames} from 'Util/LocalizerUtil';
+import {Declension, joinNames, t} from 'Util/LocalizerUtil';
 import {getFirstName} from 'Util/SanitizationUtil';
 import {capitalizeFirstChar} from 'Util/StringUtil';
 
-import {User} from '../User';
-import {ClientEvent} from '../../event/Client';
 import {BackendEvent} from '../../event/Backend';
-import {SystemMessageType} from '../../message/SystemMessageType';
+import {ClientEvent} from '../../event/Client';
 import {SuperType} from '../../message/SuperType';
+import {SystemMessageType} from '../../message/SystemMessageType';
+import {User} from '../User';
+import {SystemMessageEntity} from './SystemMessage';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class MemberMessageEntity extends SystemMessageEntity {
+  static CONFIG = {
+    MAX_USERS_VISIBLE: 17,
+    MAX_WHOLE_TEAM_USERS_VISIBLE: 10,
+    REDUCED_USERS_COUNT: 15,
+  };
 
-z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
-  static get CONFIG() {
-    return {
-      MAX_USERS_VISIBLE: 17,
-      MAX_WHOLE_TEAM_USERS_VISIBLE: 10,
-      REDUCED_USERS_COUNT: 15,
-    };
-  }
+  allTeamMembers?: User[];
+  exceedsMaxVisibleUsers: ko.PureComputed<boolean>;
+  hasUsers: ko.PureComputed<number>;
+  hiddenUserCount: ko.PureComputed<number>;
+  highlightedUsers: ko.PureComputed<User[]>;
+  htmlCaption: ko.PureComputed<string>;
+  htmlGroupCreationHeader: ko.PureComputed<string>;
+  joinedUserEntities: ko.PureComputed<User[]>;
+  memberMessageType: SystemMessageType;
+  name: ko.Observable<string>;
+  otherUser: ko.PureComputed<User>;
+  remoteUserEntities: ko.PureComputed<User[]>;
+  senderName: ko.PureComputed<string>;
+  showNamedCreation: ko.PureComputed<number>;
+  showServicesWarning: boolean;
+  userEntities: ko.ObservableArray<User>;
+  userIds: ko.ObservableArray<string>;
+  visibleUsers: ko.Observable<User[]>;
 
   constructor() {
     super();
@@ -50,7 +65,7 @@ z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
     this.name = ko.observable('');
 
     this.exceedsMaxVisibleUsers = ko.pureComputed(() => {
-      return this.joinedUserEntities().length > MemberMessage.CONFIG.MAX_USERS_VISIBLE;
+      return this.joinedUserEntities().length > MemberMessageEntity.CONFIG.MAX_USERS_VISIBLE;
     });
     this.visibleUsers = ko.observable([]);
     this.hiddenUserCount = ko.pureComputed(() => this.joinedUserEntities().length - this.visibleUsers().length);
@@ -73,7 +88,7 @@ z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
       const selfUser = joinedUserEntities.find(userEntity => userEntity.is_me);
       const visibleUsers = joinedUserEntities.filter(userEntity => !userEntity.is_me);
       if (this.exceedsMaxVisibleUsers()) {
-        const spliceCount = MemberMessage.CONFIG.REDUCED_USERS_COUNT;
+        const spliceCount = MemberMessageEntity.CONFIG.REDUCED_USERS_COUNT;
         visibleUsers.splice(selfUser ? spliceCount - 1 : spliceCount);
       }
       if (selfUser) {
@@ -131,7 +146,8 @@ z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
 
         case SystemMessageType.CONVERSATION_CREATE: {
           if (this.name().length) {
-            const exceedsMaxTeam = this.joinedUserEntities().length > MemberMessage.CONFIG.MAX_WHOLE_TEAM_USERS_VISIBLE;
+            const exceedsMaxTeam =
+              this.joinedUserEntities().length > MemberMessageEntity.CONFIG.MAX_WHOLE_TEAM_USERS_VISIBLE;
             if (this.allTeamMembers && exceedsMaxTeam) {
               const guestCount = this.joinedUserEntities().filter(userEntity => userEntity.isGuest()).length;
               if (!guestCount) {
@@ -227,28 +243,27 @@ z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
       }
       return '';
     });
-
-    this.showLargeAvatar = () => {
-      const largeAvatarTypes = [SystemMessageType.CONNECTION_ACCEPTED, SystemMessageType.CONNECTION_REQUEST];
-      return largeAvatarTypes.includes(this.memberMessageType);
-    };
   }
 
-  _generateNameString(skipAnd = false, declension = Declension.ACCUSATIVE) {
+  showLargeAvatar(): boolean {
+    const largeAvatarTypes = [SystemMessageType.CONNECTION_ACCEPTED, SystemMessageType.CONNECTION_REQUEST];
+    return largeAvatarTypes.includes(this.memberMessageType);
+  }
+
+  _generateNameString(skipAnd = false, declension = Declension.ACCUSATIVE): string {
     return joinNames(this.visibleUsers(), declension, skipAnd, true);
   }
 
-  isConnection() {
+  isConnection(): boolean {
     const connectionMessageTypes = [SystemMessageType.CONNECTION_ACCEPTED, SystemMessageType.CONNECTION_REQUEST];
-
     return connectionMessageTypes.includes(this.memberMessageType);
   }
 
-  isConnectionRequest() {
+  isConnectionRequest(): boolean {
     return this.memberMessageType === SystemMessageType.CONNECTION_REQUEST;
   }
 
-  isCreation() {
+  isCreation(): boolean {
     return [
       SystemMessageType.CONNECTION_ACCEPTED,
       SystemMessageType.CONNECTION_REQUEST,
@@ -257,43 +272,43 @@ z.entity.MemberMessage = class MemberMessage extends z.entity.SystemMessage {
     ].includes(this.memberMessageType);
   }
 
-  isConversationCreate() {
+  isConversationCreate(): boolean {
     return this.memberMessageType === SystemMessageType.CONVERSATION_CREATE;
   }
 
-  isConversationResume() {
+  isConversationResume(): boolean {
     return this.memberMessageType === SystemMessageType.CONVERSATION_RESUME;
   }
 
-  isGroupCreation() {
+  isGroupCreation(): boolean {
     return this.isConversationCreate() || this.isConversationResume();
   }
 
-  isMemberChange() {
+  isMemberChange(): boolean {
     return this.isMemberJoin() || this.isMemberLeave() || this.isTeamMemberLeave();
   }
 
-  isMemberJoin() {
+  isMemberJoin(): boolean {
     return this.type === BackendEvent.CONVERSATION.MEMBER_JOIN;
   }
 
-  isMemberLeave() {
+  isMemberLeave(): boolean {
     return this.type === BackendEvent.CONVERSATION.MEMBER_LEAVE;
   }
 
-  isTeamMemberLeave() {
+  isTeamMemberLeave(): boolean {
     return this.type === ClientEvent.CONVERSATION.TEAM_MEMBER_LEAVE;
   }
 
-  isMemberRemoval() {
+  isMemberRemoval(): boolean {
     return this.isMemberLeave() || this.isTeamMemberLeave();
   }
 
-  isUserAffected(userId) {
+  isUserAffected(userId: string): boolean {
     return this.userIds().includes(userId);
   }
 
-  guestCount() {
+  guestCount(): number {
     return this.joinedUserEntities().filter(user => user.isGuest()).length;
   }
-};
+}

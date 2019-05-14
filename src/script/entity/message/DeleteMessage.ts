@@ -17,27 +17,24 @@
  *
  */
 
+import moment from 'moment';
+
 import {t} from 'Util/LocalizerUtil';
 
 import {SuperType} from '../../message/SuperType';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class DeleteMessageEntity extends MessageEntity {
+  deleted_timestamp: number | null;
 
-z.entity.PingMessage = class PingMessage extends z.entity.Message {
   constructor() {
     super();
-    this.super_type = SuperType.PING;
 
-    this.caption = ko.pureComputed(() => (this.user().is_me ? t('conversationPingYou') : t('conversationPing')));
-
-    this.get_icon_classes = ko.pureComputed(() => {
-      const show_ping_animation = Date.now() - this.timestamp() < 2000;
-      let css_classes = this.accent_color();
-      if (show_ping_animation) {
-        css_classes += ' ping-animation ping-animation-soft';
-      }
-      return css_classes;
-    });
+    this.super_type = SuperType.DELETE;
+    this.deleted_timestamp = null;
   }
-};
+
+  display_deleted_timestamp(): string {
+    return t('conversationDeleteTimestamp', moment(this.deleted_timestamp).format('LT'));
+  }
+}

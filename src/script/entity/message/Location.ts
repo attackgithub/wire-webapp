@@ -17,15 +17,22 @@
  *
  */
 
-import {SuperType} from '../../message/SuperType';
+import {AssetType} from '../../assets/AssetType';
+import {Asset} from './Asset';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class LocationEntity extends Asset {
+  latitude: string;
+  longitude: string;
+  name: string;
+  zoom: string;
 
-z.entity.MissedMessage = class MissedMessage extends z.entity.Message {
-  constructor() {
-    super();
-    this.super_type = SuperType.MISSED;
-    this.affect_order(false);
+  constructor(id?: string) {
+    super(id);
+
+    this.latitude = '';
+    this.longitude = '';
+    this.name = '';
+    this.type = AssetType.LOCATION;
+    this.zoom = '';
   }
-};
+}

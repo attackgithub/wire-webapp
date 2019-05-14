@@ -20,8 +20,7 @@
 import UUID from 'uuidjs';
 
 import {areMentionsDifferent, isTextDifferent} from 'Util/messageComparator';
-
-import {Text} from 'src/script/entity/message/Text';
+import {TextEntity} from 'src/script/entity/message/Text';
 
 describe('MessageComparator', () => {
   it('areMentionsDifferent', () => {
@@ -57,7 +56,7 @@ describe('MessageComparator', () => {
     ];
 
     tests.forEach(({expected, newText, originalText}) => {
-      const assetEntity = new Text('', originalText);
+      const assetEntity = new TextEntity('', originalText);
       const messageEntity = {get_first_asset: () => assetEntity};
 
       expect(isTextDifferent(messageEntity, newText)).toBe(expected);

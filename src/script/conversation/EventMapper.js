@@ -26,9 +26,21 @@ import {base64ToArray} from 'Util/util';
 import {AssetTransferState} from '../assets/AssetTransferState';
 
 import {MediumImage} from '../entity/message/MediumImage';
-import {File} from '../entity/message/File';
+import {FileEntity} from '../entity/message/File';
 import {ReceiptModeUpdateMessage} from '../entity/message/ReceiptModeUpdateMessage';
-import {LinkPreview as LinkPreviewEntity} from '../entity/message/LinkPreview';
+import {LinkPreviewEntity} from '../entity/message/LinkPreview';
+import {MessageTimerUpdateMessage} from '../entity/message/MessageTimerUpdateMessage';
+import {MemberMessageEntity} from '../entity/message/MemberMessage';
+import {MissedMessageEntity} from '../entity/message/MissedMessage';
+import {RenameMessageEntity} from '../entity/message/RenameMessage';
+import {PingMessageEntity} from '../entity/message/PingMessage';
+import {CallMessageEntity} from '../entity/message/CallMessage';
+import {DecryptErrorMessageEntity} from '../entity/message/DecryptErrorMessage';
+import {VerificationMessageEntity} from '../entity/message/VerificationMessage';
+import {TextEntity} from '../entity/message/Text';
+import {LocationEntity} from '../entity/message/Location';
+import {DeleteMessageEntity} from '../entity/message/DeleteMessage';
+import {ContentMessageEntity} from '../entity/message/ContentMessage';
 
 import {TERMINATION_REASON} from '../calling/enum/TerminationReason';
 import {ClientEvent} from '../event/Client';
@@ -106,9 +118,9 @@ export class EventMapper {
    * Will update the content of the originalEntity with the new data given.
    * Will try to do as little updates as possible to avoid to many observable emission.
    *
-   * @param {z.entity.MessageEntity} originalEntity - the original message to update
+   * @param {MessageEntity} originalEntity - the original message to update
    * @param {Object} event - new json data to feed into the entity
-   * @returns {z.entity.MessageEntity} - the updated message entity
+   * @returns {MessageEntity} - the updated message entity
    */
   updateMessageEvent(originalEntity, event) {
     const {id, data: eventData, edited_time: editedTime} = event;
@@ -315,7 +327,7 @@ export class EventMapper {
   _mapEvent1to1Creation({data: eventData}) {
     const {has_service: hasService, userIds} = eventData;
 
-    const messageEntity = new z.entity.MemberMessage();
+    const messageEntity = new MemberMessageEntity();
     messageEntity.memberMessageType = SystemMessageType.CONNECTION_ACCEPTED;
     messageEntity.userIds(userIds);
 
@@ -334,7 +346,7 @@ export class EventMapper {
    * @returns {ContentMessage} Content message entity
    */
   _mapEventAssetAdd(event) {
-    const messageEntity = new z.entity.ContentMessage();
+    const messageEntity = new ContentMessageEntity();
 
     const assetEntity = this._mapAsset(event);
     messageEntity.assets.push(assetEntity);
@@ -350,7 +362,7 @@ export class EventMapper {
    * @returns {DeleteMessage} Delete message entity
    */
   _mapEventDeleteEverywhere({data: eventData}) {
-    const messageEntity = new z.entity.DeleteMessage();
+    const messageEntity = new DeleteMessageEntity();
     messageEntity.deleted_timestamp = new Date(eventData.deleted_time).getTime();
     return messageEntity;
   }
@@ -363,7 +375,7 @@ export class EventMapper {
    * @returns {MemberMessage} Member message entity
    */
   _mapEventGroupCreation({data: eventData}) {
-    const messageEntity = new z.entity.MemberMessage();
+    const messageEntity = new MemberMessageEntity();
     messageEntity.memberMessageType = SystemMessageType.CONVERSATION_CREATE;
     messageEntity.name(eventData.name || '');
     messageEntity.userIds(eventData.userIds);
@@ -380,8 +392,8 @@ export class EventMapper {
    */
   _mapEventLocation({data: eventData}) {
     const location = eventData.location;
-    const messageEntity = new z.entity.ContentMessage();
-    const assetEntity = new z.entity.Location();
+    const messageEntity = new ContentMessageEntity();
+    const assetEntity = new LocationEntity();
 
     assetEntity.longitude = location.longitude;
     assetEntity.latitude = location.latitude;
@@ -405,7 +417,7 @@ export class EventMapper {
     const {data: eventData, from: sender} = event;
     const {has_service: hasService, user_ids: userIds} = eventData;
 
-    const messageEntity = new z.entity.MemberMessage();
+    const messageEntity = new MemberMessageEntity();
 
     const isSingleModeConversation = conversationEntity.is1to1() || conversationEntity.isRequest();
     messageEntity.visible(!isSingleModeConversation);
@@ -438,7 +450,7 @@ export class EventMapper {
    * @returns {MemberMessage} Member message entity
    */
   _mapEventMemberLeave({data: eventData}) {
-    const messageEntity = new z.entity.MemberMessage();
+    const messageEntity = new MemberMessageEntity();
     messageEntity.userIds(eventData.user_ids);
     return messageEntity;
   }
@@ -452,7 +464,7 @@ export class EventMapper {
    */
   _mapEventMessageAdd(event) {
     const {data: eventData, edited_time: editedTime} = event;
-    const messageEntity = new z.entity.ContentMessage();
+    const messageEntity = new ContentMessageEntity();
 
     messageEntity.assets.push(this._mapAssetText(eventData));
     messageEntity.replacing_message_id = eventData.replacing_message_id;
@@ -472,7 +484,7 @@ export class EventMapper {
    * @returns {MissedMessage} Missed message entity
    */
   _mapEventMissedMessages() {
-    return new z.entity.MissedMessage();
+    return new MissedMessageEntity();
   }
 
   /**
@@ -481,7 +493,7 @@ export class EventMapper {
    * @returns {PingMessage} Ping message entity
    */
   _mapEventPing() {
-    return new z.entity.PingMessage();
+    return new PingMessageEntity();
   }
 
   /**
@@ -492,7 +504,7 @@ export class EventMapper {
    * @returns {RenameMessage} Rename message entity
    */
   _mapEventRename({data: eventData}) {
-    const messageEntity = new z.entity.RenameMessage();
+    const messageEntity = new RenameMessageEntity();
     messageEntity.name = eventData.name;
     return messageEntity;
   }
@@ -516,7 +528,7 @@ export class EventMapper {
    * @returns {MessageTimerUpdateMessage} message timer update message entity
    */
   _mapEventMessageTimerUpdate({data: eventData}) {
-    return new z.entity.MessageTimerUpdateMessage(eventData.message_timer);
+    return new MessageTimerUpdateMessage(eventData.message_timer);
   }
 
   /**
@@ -541,7 +553,7 @@ export class EventMapper {
    * @returns {DecryptErrorMessage} Decrypt error message entity
    */
   _mapEventUnableToDecrypt({error_code: errorCode}) {
-    const messageEntity = new z.entity.DecryptErrorMessage();
+    const messageEntity = new DecryptErrorMessageEntity();
 
     if (errorCode) {
       const [code] = errorCode.split(' ');
@@ -560,7 +572,7 @@ export class EventMapper {
    * @returns {VerificationMessage} Verification message entity
    */
   _mapEventVerification({data: eventData}) {
-    const messageEntity = new z.entity.VerificationMessage();
+    const messageEntity = new VerificationMessageEntity();
 
     // Database can contain non-camelCased naming. For backwards compatibility reasons we handle both.
     messageEntity.userIds(eventData.userIds || eventData.user_ids);
@@ -575,7 +587,7 @@ export class EventMapper {
    * @returns {CallMessageEntity} Call message entity
    */
   _mapEventVoiceChannelActivate() {
-    const messageEntity = new z.entity.CallMessage();
+    const messageEntity = new CallMessageEntity();
 
     messageEntity.call_message_type = CALL_MESSAGE_TYPE.ACTIVATED;
     messageEntity.visible(false);
@@ -591,7 +603,7 @@ export class EventMapper {
    * @returns {CallMessageEntity} Call message entity
    */
   _mapEventVoiceChannelDeactivate({data: eventData}) {
-    const messageEntity = new z.entity.CallMessage();
+    const messageEntity = new CallMessageEntity();
 
     messageEntity.call_message_type = CALL_MESSAGE_TYPE.DEACTIVATED;
     messageEntity.finished_reason = eventData.reason;
@@ -616,13 +628,13 @@ export class EventMapper {
    *
    * @private
    * @param {Object} event - Asset data received as JSON
-   * @returns {File} File asset entity
+   * @returns {FileEntity} File asset entity
    */
   _mapAssetFile(event) {
     const {conversation: conversationId, data: eventData} = event;
     const {content_length, content_type, id, info, meta, status} = eventData;
 
-    const assetEntity = new File(id);
+    const assetEntity = new FileEntity(id);
 
     assetEntity.conversationId = conversationId;
 
@@ -775,12 +787,12 @@ export class EventMapper {
    *
    * @private
    * @param {Object} eventData - Asset data received as JSON
-   * @returns {Text} Text asset entity
+   * @returns {TextEntity} Text asset entity
    */
   _mapAssetText(eventData) {
     const {id, content, mentions, message, previews} = eventData;
     const messageText = content || message;
-    const assetEntity = new z.entity.Text(id, messageText);
+    const assetEntity = new TextEntity(id, messageText);
 
     if (mentions && mentions.length) {
       assetEntity.mentions(this._mapAssetMentions(mentions, messageText));

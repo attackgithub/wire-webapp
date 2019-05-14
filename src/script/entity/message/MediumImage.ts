@@ -22,9 +22,9 @@ import {downloadBlob} from 'Util/util';
 
 import {AssetRemoteData} from '../../assets/AssetRemoteData';
 import {AssetType} from '../../assets/AssetType';
-import {File} from './File';
+import {FileEntity} from './File';
 
-class MediumImage extends File {
+class MediumImage extends FileEntity {
   correlation_id: string;
   height: string;
   resource: ko.Observable<AssetRemoteData>;

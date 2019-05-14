@@ -27,7 +27,14 @@ import 'src/script/localization/Localizer';
 import {Conversation} from 'src/script/entity/Conversation';
 import {MediumImage} from 'src/script/entity/message/MediumImage';
 import {User} from 'src/script/entity/User';
-import {ContentMessage} from 'src/script/entity/message/ContentMessage';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
+import {TextEntity} from 'src/script/entity/message/Text';
+import {LocationEntity} from 'src/script/entity/message/Location';
+import {MessageTimerUpdateMessage} from 'src/script/entity/message/MessageTimerUpdateMessage';
+import {MemberMessageEntity} from 'src/script/entity/message/MemberMessage';
+import {RenameMessageEntity} from 'src/script/entity/message/RenameMessage';
+import {PingMessageEntity} from 'src/script/entity/message/PingMessage';
+import {CallMessageEntity} from 'src/script/entity/message/CallMessage';
 
 import {TERMINATION_REASON} from 'src/script/calling/enum/TerminationReason';
 import {NotificationRepository} from 'src/script/notification/NotificationRepository';
@@ -206,7 +213,7 @@ describe('NotificationRepository', () => {
 
   describe('does not show a notification', () => {
     beforeEach(() => {
-      message_et = new z.entity.PingMessage();
+      message_et = new PingMessageEntity();
       message_et.user(user_et);
     });
 
@@ -255,7 +262,7 @@ describe('NotificationRepository', () => {
     });
 
     it('for a successfully completed call', () => {
-      message_et = new z.entity.CallMessage();
+      message_et = new CallMessageEntity();
       message_et.call_message_type = CALL_MESSAGE_TYPE.DEACTIVATED;
       message_et.finished_reason = TERMINATION_REASON.COMPLETED;
 
@@ -284,25 +291,25 @@ describe('NotificationRepository', () => {
   describe('reacts according to availability status', () => {
     let allMessageTypes;
     function generateTextAsset() {
-      const textEntity = new z.entity.Text(createRandomUuid(), 'hey there');
+      const textEntity = new TextEntity(createRandomUuid(), 'hey there');
       return textEntity;
     }
 
     beforeEach(() => {
-      const mentionMessage = new ContentMessage(createRandomUuid());
+      const mentionMessage = new ContentMessageEntity(createRandomUuid());
       mentionMessage.add_asset(generateTextAsset());
       spyOn(mentionMessage, 'isUserMentioned').and.returnValue(true);
 
-      const textMessage = new ContentMessage(createRandomUuid());
+      const textMessage = new ContentMessageEntity(createRandomUuid());
       textMessage.add_asset(generateTextAsset());
 
-      const callMessage = new z.entity.CallMessage();
+      const callMessage = new CallMessageEntity();
       callMessage.call_message_type = CALL_MESSAGE_TYPE.ACTIVATED;
       allMessageTypes = {
         call: callMessage,
         content: textMessage,
         mention: mentionMessage,
-        ping: new z.entity.PingMessage(),
+        ping: new PingMessageEntity(),
       };
     });
 
@@ -371,7 +378,7 @@ describe('NotificationRepository', () => {
       const expected_body = z.string.notificationVoiceChannelActivate;
 
       beforeEach(() => {
-        message_et = new z.entity.CallMessage();
+        message_et = new CallMessageEntity();
         message_et.call_message_type = CALL_MESSAGE_TYPE.ACTIVATED;
         message_et.user(user_et);
       });
@@ -390,7 +397,7 @@ describe('NotificationRepository', () => {
       const expected_body = z.string.notificationVoiceChannelDeactivate;
 
       beforeEach(() => {
-        message_et = new z.entity.CallMessage();
+        message_et = new CallMessageEntity();
         message_et.call_message_type = CALL_MESSAGE_TYPE.DEACTIVATED;
         message_et.finished_reason = TERMINATION_REASON.MISSED;
         message_et.user(user_et);
@@ -411,13 +418,13 @@ describe('NotificationRepository', () => {
     let expected_body = undefined;
 
     beforeEach(() => {
-      message_et = new ContentMessage();
+      message_et = new ContentMessageEntity();
       message_et.user(user_et);
     });
 
     describe('for a text message', () => {
       beforeEach(() => {
-        const asset_et = new z.entity.Text('id', 'Lorem ipsum');
+        const asset_et = new TextEntity('id', 'Lorem ipsum');
         message_et.assets.push(asset_et);
         expected_body = asset_et.text;
       });
@@ -474,7 +481,7 @@ describe('NotificationRepository', () => {
 
     describe('for a location', () => {
       beforeEach(() => {
-        message_et.assets.push(new z.entity.Location());
+        message_et.assets.push(new LocationEntity());
         expected_body = z.string.notificationSharedLocation;
       });
 
@@ -506,12 +513,12 @@ describe('NotificationRepository', () => {
       });
 
       it('that contains text', () => {
-        message_et.assets.push(new z.entity.Text('id', 'Hello world!'));
+        message_et.assets.push(new TextEntity('id', 'Hello world!'));
         return verify_notification_ephemeral(conversation_et, message_et);
       });
 
       it('that contains an image', () => {
-        message_et.assets.push(new z.entity.Location());
+        message_et.assets.push(new LocationEntity());
         return verify_notification_ephemeral(conversation_et, message_et);
       });
 
@@ -532,7 +539,7 @@ describe('NotificationRepository', () => {
 
     it('if a group is created', () => {
       conversation_et.from = payload.users.get.one[0].id;
-      message_et = new z.entity.MemberMessage();
+      message_et = new MemberMessageEntity();
       message_et.user(user_et);
       message_et.type = BackendEvent.CONVERSATION.CREATE;
       message_et.memberMessageType = SystemMessageType.CONVERSATION_CREATE;
@@ -542,7 +549,7 @@ describe('NotificationRepository', () => {
     });
 
     it('if a group is renamed', () => {
-      message_et = new z.entity.RenameMessage();
+      message_et = new RenameMessageEntity();
       message_et.user(user_et);
       message_et.name = 'Lorem Ipsum Conversation';
 
@@ -551,7 +558,7 @@ describe('NotificationRepository', () => {
     });
 
     it('if a group message timer is updated', () => {
-      message_et = new z.entity.MessageTimerUpdateMessage(5000);
+      message_et = new MessageTimerUpdateMessage(5000);
       message_et.user(user_et);
 
       const expectedBody = `${first_name} set the message timer to 5 ${t('ephemeralUnitsSeconds')}`;
@@ -559,7 +566,7 @@ describe('NotificationRepository', () => {
     });
 
     it('if a group message timer is reset', () => {
-      message_et = new z.entity.MessageTimerUpdateMessage(null);
+      message_et = new MessageTimerUpdateMessage(null);
       message_et.user(user_et);
 
       const expectedBody = `${first_name} turned off the message timer`;
@@ -571,7 +578,7 @@ describe('NotificationRepository', () => {
     let other_user_et = undefined;
 
     beforeEach(() => {
-      message_et = new z.entity.MemberMessage();
+      message_et = new MemberMessageEntity();
       message_et.user(user_et);
       message_et.memberMessageType = SystemMessageType.NORMAL;
       other_user_et = TestFactory.user_repository.user_mapper.mapUserFromJson(payload.users.get.many[1]);
@@ -665,7 +672,7 @@ describe('NotificationRepository', () => {
 
       const connectionMapper = new ConnectionMapper();
       connectionEntity = connectionMapper.mapConnectionFromJson(entities.connection);
-      message_et = new z.entity.MemberMessage();
+      message_et = new MemberMessageEntity();
       message_et.user(user_et);
     });
 
@@ -700,7 +707,7 @@ describe('NotificationRepository', () => {
     });
 
     beforeEach(() => {
-      message_et = new z.entity.PingMessage();
+      message_et = new PingMessageEntity();
       message_et.user(user_et);
     });
 
@@ -729,7 +736,7 @@ describe('NotificationRepository', () => {
     function generateTextAsset(selfMentioned = false) {
       const mentionId = selfMentioned ? userId : createRandomUuid();
 
-      const textEntity = new z.entity.Text(createRandomUuid(), '@Gregor can you take a look?');
+      const textEntity = new TextEntity(createRandomUuid(), '@Gregor can you take a look?');
       const mentionEntity = new MentionEntity(0, 7, mentionId);
       textEntity.mentions([mentionEntity]);
 
@@ -744,7 +751,7 @@ describe('NotificationRepository', () => {
       conversationEntity = new Conversation(createRandomUuid());
       conversationEntity.selfUser(selfUserEntity);
 
-      messageEntity = new ContentMessage(createRandomUuid());
+      messageEntity = new ContentMessageEntity(createRandomUuid());
       messageEntity.user(selfUserEntity);
     });
 

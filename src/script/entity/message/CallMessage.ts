@@ -22,11 +22,13 @@ import {t} from 'Util/LocalizerUtil';
 import {TERMINATION_REASON} from '../../calling/enum/TerminationReason';
 import {CALL_MESSAGE_TYPE} from '../../message/CallMessageType';
 import {SuperType} from '../../message/SuperType';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class CallMessageEntity extends MessageEntity {
+  call_message_type: string;
+  caption: ko.PureComputed<string>;
+  finished_reason: string;
 
-z.entity.CallMessage = class CallMessage extends z.entity.Message {
   constructor() {
     super();
     this.super_type = SuperType.CALL;
@@ -38,27 +40,19 @@ z.entity.CallMessage = class CallMessage extends z.entity.Message {
     );
   }
 
-  /**
-   * Check if call message is call activation.
-   * @returns {boolean} Is message of type activate
-   */
-  is_activation() {
+  is_activation(): boolean {
     return this.call_message_type === CALL_MESSAGE_TYPE.ACTIVATED;
   }
 
-  /**
-   * Check if call message is call deactivation.
-   * @returns {boolean} Is message of type deactivate
-   */
-  is_deactivation() {
+  is_deactivation(): boolean {
     return this.call_message_type === CALL_MESSAGE_TYPE.DEACTIVATED;
   }
 
-  was_completed() {
+  was_completed(): boolean {
     return this.finished_reason === TERMINATION_REASON.COMPLETED;
   }
 
-  was_missed() {
+  was_missed(): boolean {
     return this.finished_reason === TERMINATION_REASON.MISSED;
   }
-};
+}

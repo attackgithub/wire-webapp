@@ -17,21 +17,13 @@
  *
  */
 
-import moment from 'moment';
-
-import {t} from 'Util/LocalizerUtil';
-
 import {SuperType} from '../../message/SuperType';
+import {MessageEntity} from './Message';
 
-z.entity.DeleteMessage = class DeleteMessage extends z.entity.Message {
+export class MissedMessageEntity extends MessageEntity {
   constructor() {
     super();
-
-    this.super_type = SuperType.DELETE;
-    this.deleted_timestamp = null;
-
-    this.display_deleted_timestamp = () => {
-      return t('conversationDeleteTimestamp', moment(this.deleted_timestamp).format('LT'));
-    };
+    this.super_type = SuperType.MISSED;
+    this.affect_order(false);
   }
-};
+}

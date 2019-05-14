@@ -28,6 +28,8 @@ import {obfuscate} from 'Util/StringUtil';
 import {EphemeralStatusType} from '../message/EphemeralStatusType';
 import {StatusType} from '../message/StatusType';
 import {BackendEvent} from '../event/Backend';
+import {TextEntity} from '../entity/message/Text';
+
 import {AbstractConversationEventHandler} from './AbstractConversationEventHandler';
 
 export class ConversationEphemeralHandler extends AbstractConversationEventHandler {
@@ -203,7 +205,7 @@ export class ConversationEphemeralHandler extends AbstractConversationEventHandl
     messageEntity.ephemeral_expires(true);
 
     const assetEntity = messageEntity.get_first_asset();
-    const obfuscatedAsset = new z.entity.Text(messageEntity.id);
+    const obfuscatedAsset = new TextEntity(messageEntity.id);
     const obfuscatedPreviews = assetEntity.previews().map(linkPreview => {
       linkPreview.obfuscate();
       const protoArticle = new Article({permanentUrl: linkPreview.url, title: linkPreview.title}); // deprecated format

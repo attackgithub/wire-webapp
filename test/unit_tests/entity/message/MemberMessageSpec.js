@@ -24,14 +24,17 @@ import {User} from 'src/script/entity/User';
 import {AssetTransferState} from 'src/script/assets/AssetTransferState';
 
 import {StatusType} from 'src/script/message/StatusType';
-import {File} from 'src/script/entity/message/File';
+import {FileEntity} from 'src/script/entity/message/File';
+import {TextEntity} from 'src/script/entity/message/Text';
+import {MemberMessageEntity} from 'src/script/entity/message/MemberMessage';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
 
 describe('Member Message', () => {
   describe('generateNameString', () => {
     let message_et = null;
 
     beforeEach(() => {
-      message_et = new z.entity.MemberMessage();
+      message_et = new MemberMessageEntity();
     });
 
     it('can return correct string for one user', () => {
@@ -85,24 +88,24 @@ describe('Member Message', () => {
     let message_et = null;
 
     beforeEach(() => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
     });
 
     it('should be deletable when message is not sending', () => {
-      message_et.assets.push(new z.entity.Text());
+      message_et.assets.push(new TextEntity());
 
       expect(message_et.is_deletable()).toBe(true);
     });
 
     it('should not be deletable while message is sending', () => {
-      message_et.assets.push(new z.entity.Text());
+      message_et.assets.push(new TextEntity());
       message_et.status(StatusType.SENDING);
 
       expect(message_et.is_deletable()).toBe(false);
     });
 
     it('should be deletable when message is a file and uploading or downloading', () => {
-      const file_et = new File();
+      const file_et = new FileEntity();
       file_et.status(AssetTransferState.UPLOADING);
       message_et.assets.push(file_et);
 
@@ -114,7 +117,7 @@ describe('Member Message', () => {
     let message_et = null;
 
     beforeEach(() => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
     });
 
     it('should return false by default', () => {
@@ -122,13 +125,13 @@ describe('Member Message', () => {
     });
 
     it('should return false for Text asset', () => {
-      message_et.assets.push(new z.entity.Text());
+      message_et.assets.push(new TextEntity());
 
       expect(message_et.has_asset_file()).toBeFalsy();
     });
 
     it('should return true for File asset', () => {
-      message_et.assets.push(new File());
+      message_et.assets.push(new FileEntity());
 
       expect(message_et.has_asset_file()).toBeTruthy();
     });

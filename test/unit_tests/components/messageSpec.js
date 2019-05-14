@@ -21,9 +21,9 @@ import UUID from 'uuidjs';
 import {instantiateComponent} from '../../api/knockoutHelpers';
 
 import {Conversation} from 'src/script/entity/Conversation';
-import {ContentMessage} from 'src/script/entity/message/ContentMessage';
-import {LinkPreview} from 'src/script/entity/message/LinkPreview';
-import {Text} from 'src/script/entity/message/Text';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
+import {LinkPreviewEntity} from 'src/script/entity/message/LinkPreview';
+import {TextEntity} from 'src/script/entity/message/Text';
 import {User} from 'src/script/entity/User';
 import 'src/script/components/message';
 
@@ -35,10 +35,10 @@ describe('message', () => {
   beforeEach(() => {
     return testFactory.exposeConversationActors().then(conversationRepository => {
       spyOn(conversationRepository, 'expectReadReceipt').and.returnValue(false);
-      const message = new ContentMessage();
+      const message = new ContentMessageEntity();
 
       message.user(new User());
-      const textAsset = new Text('', textValue);
+      const textAsset = new TextEntity('', textValue);
       spyOn(textAsset, 'render').and.returnValue(`<span>${textValue}</span>`);
       message.assets.push(textAsset);
 
@@ -89,7 +89,7 @@ describe('message', () => {
   });
 
   it('displays a link preview', () => {
-    const linkPreview = new LinkPreview();
+    const linkPreview = new LinkPreviewEntity();
     defaultParams.message.get_first_asset().previews([linkPreview]);
     return instantiateComponent('message', defaultParams).then(domContainer => {
       expect(domContainer.querySelector('link-preview-asset')).not.toBe(null);

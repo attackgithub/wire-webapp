@@ -150,7 +150,7 @@ export class NotificationRepository {
 
   /**
    * Display browser notification and play sound notification.
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Promise} Resolves when notification has been handled
@@ -222,7 +222,7 @@ export class NotificationRepository {
   /**
    * Creates the notification body for calls.
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @returns {string} Notification message body
    */
   _createBodyCall(messageEntity) {
@@ -239,7 +239,7 @@ export class NotificationRepository {
    * Creates the notification body for text messages and pictures.
    *
    * @private
-   * @param {z.entity.ContentMessage} messageEntity - Normal message entity
+   * @param {ContentMessageEntity} messageEntity - Normal message entity
    * @returns {string} Notification message body
    */
   _createBodyContent(messageEntity) {
@@ -290,7 +290,7 @@ export class NotificationRepository {
    * Creates the notification body for people being added to a group conversation.
    *
    * @private
-   * @param {z.entity.MemberMessage} messageEntity - Member message entity
+   * @param {MemberMessageEntity} messageEntity - Member message entity
    * @returns {string} Notification message body
    */
   _createBodyMemberJoin(messageEntity) {
@@ -319,7 +319,7 @@ export class NotificationRepository {
    * @note Only show a notification if self user was removed
    *
    * @private
-   * @param {z.entity.MemberMessage} messageEntity - Member message entity
+   * @param {MemberMessageEntity} messageEntity - Member message entity
    * @returns {string} Notification message body
    */
   _createBodyMemberLeave(messageEntity) {
@@ -333,7 +333,7 @@ export class NotificationRepository {
    * Selects the type of system message that the notification body needs to be created for.
    *
    * @private
-   * @param {z.entity.MemberMessage} messageEntity - Member message entity
+   * @param {MemberMessageEntity} messageEntity - Member message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {string} Notification message body
@@ -367,7 +367,7 @@ export class NotificationRepository {
    * Creates the notification body for obfuscated messages.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message to obfuscate body for
+   * @param {MessageEntity} messageEntity - Message to obfuscate body for
    * @returns {string} Notification message body
    */
   _createBodyObfuscated(messageEntity) {
@@ -400,7 +400,7 @@ export class NotificationRepository {
   /**
    * Creates the notification body for reaction.
    * @private
-   * @param {z.entity.Message} messageEntity - Fake reaction message entity
+   * @param {MessageEntity} messageEntity - Fake reaction message entity
    * @returns {string} Notification message body
    */
   _createBodyReaction(messageEntity) {
@@ -411,7 +411,7 @@ export class NotificationRepository {
    * Selects the type of system message that the notification body needs to be created for.
    *
    * @private
-   * @param {z.entity.MemberMessage} messageEntity - Member message entity
+   * @param {MemberMessageEntity} messageEntity - Member message entity
    * @returns {string} Notification message body
    */
   _createBodySystem(messageEntity) {
@@ -446,7 +446,7 @@ export class NotificationRepository {
    * Create notification content.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Promise} Resolves with the notification content
@@ -480,7 +480,7 @@ export class NotificationRepository {
    * Selects the type of message that the notification body needs to be created for.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} connectionEntity - Connection entity
    * @param {Conversation} conversationEntity - Conversation entity
    * @returns {string|undefined} The notification message body
@@ -506,7 +506,7 @@ export class NotificationRepository {
    * Creates the notification data to help check its content.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Object} Notification message data
@@ -563,7 +563,7 @@ export class NotificationRepository {
    * Creates the notification title.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {string} Notification message title
    */
@@ -595,7 +595,7 @@ export class NotificationRepository {
    * Creates the notification trigger.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Function} Function to be called when notification is clicked
@@ -659,7 +659,7 @@ export class NotificationRepository {
    *
    * @private
    * @see https://developer.mozilla.org/en/docs/Web/API/notification#Parameters
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {ConnectionEntity} [connectionEntity] - Connection entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Promise} Resolves when notification was handled
@@ -682,7 +682,7 @@ export class NotificationRepository {
   /**
    * Plays the sound from the audio repository.
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @returns {undefined} No return value
    */
   _notifySound(messageEntity) {
@@ -723,7 +723,7 @@ export class NotificationRepository {
   /**
    * Should message in a notification be obfuscated.
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @returns {boolean} Obfuscate message in notification
    */
   _shouldObfuscateNotificationMessage(messageEntity) {
@@ -735,7 +735,7 @@ export class NotificationRepository {
   /**
    * Should sender in a notification be obfuscated.
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @returns {boolean} Obfuscate sender in notification
    */
   _shouldObfuscateNotificationSender(messageEntity) {
@@ -746,7 +746,7 @@ export class NotificationRepository {
   /**
    * Should hide notification.
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity
+   * @param {MessageEntity} messageEntity - Message entity
    * @param {Conversation} [conversationEntity] - Conversation entity
    * @returns {Promise} Resolves if the notification should be shown
    */
@@ -843,7 +843,7 @@ export class NotificationRepository {
    * Check whether conversation is in state to trigger notitication.
    *
    * @param {Conversation} conversationEntity - Conversation to notify in .
-   * @param {z.entity.Message} messageEntity - The message to filter from.
+   * @param {MessageEntity} messageEntity - The message to filter from.
    * @param {string} userId - The user id to check mentions for.
    * @returns {boolean} True if the conversation should show notification.
    */

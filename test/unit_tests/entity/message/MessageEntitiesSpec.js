@@ -19,35 +19,37 @@
 
 import {MediumImage} from 'src/script/entity/message/MediumImage';
 import {StatusType} from 'src/script/message/StatusType';
-import {File} from 'src/script/entity/message/File';
+import {FileEntity} from 'src/script/entity/message/File';
+import {TextEntity} from 'src/script/entity/message/Text';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
 
 describe('Message Entities', () => {
   let message_et = null;
 
   describe('is_downloadable', () => {
     it('message with text asset should not be downloadable', () => {
-      message_et = new z.entity.ContentMessage();
-      message_et.assets.push(new z.entity.Text());
+      message_et = new ContentMessageEntity();
+      message_et.assets.push(new TextEntity());
 
       expect(message_et.is_downloadable()).toBeFalsy();
     });
 
     it('message with image asset should be downloadable', () => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
       message_et.assets.push(new MediumImage());
 
       expect(message_et.is_downloadable()).toBeTruthy();
     });
 
     it('message with file asset should be downloadable', () => {
-      message_et = new z.entity.ContentMessage();
-      message_et.assets.push(new File());
+      message_et = new ContentMessageEntity();
+      message_et.assets.push(new FileEntity());
 
       expect(message_et.is_downloadable()).toBeTruthy();
     });
 
     it('ephemeral message with image asset should be downloadable', () => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
       message_et.assets.push(new MediumImage());
       message_et.ephemeral_expires(12312123);
 
@@ -55,7 +57,7 @@ describe('Message Entities', () => {
     });
 
     it('expired ephemeral message with image asset should not be downloadable', () => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
       message_et.assets.push(new MediumImage());
       message_et.ephemeral_expires(true);
 
@@ -65,7 +67,7 @@ describe('Message Entities', () => {
 
   describe('ContentMessage', () => {
     beforeEach(() => {
-      message_et = new z.entity.ContentMessage();
+      message_et = new ContentMessageEntity();
     });
 
     describe('no asset', () => {
@@ -94,7 +96,7 @@ describe('Message Entities', () => {
 
     describe('text asset', () => {
       beforeEach(() => {
-        message_et.assets.push(new z.entity.Text());
+        message_et.assets.push(new TextEntity());
       });
 
       it('has_asset_medium_image return false', () => {

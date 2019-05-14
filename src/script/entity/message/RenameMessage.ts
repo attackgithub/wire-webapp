@@ -17,20 +17,21 @@
  *
  */
 
-import {Asset} from './Asset';
-import {AssetType} from '../../assets/AssetType';
+import {t} from 'Util/LocalizerUtil';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+import {BackendEvent} from '../../event/Backend';
+import {SystemMessageType} from '../../message/SystemMessageType';
+import {SystemMessageEntity} from './SystemMessage';
 
-z.entity.Location = class Location extends Asset {
+export class RenameMessageEntity extends SystemMessageEntity {
+  caption: ko.PureComputed<string>;
+
   constructor() {
     super();
 
-    this.latitude = '';
-    this.longitude = '';
-    this.name = '';
-    this.type = AssetType.LOCATION;
-    this.zoom = '';
+    this.type = BackendEvent.CONVERSATION.RENAME;
+    this.system_message_type = SystemMessageType.CONVERSATION_RENAME;
+
+    this.caption = ko.pureComputed(() => (this.user().is_me ? t('conversationRenameYou') : t('conversationRename')));
   }
-};
+}

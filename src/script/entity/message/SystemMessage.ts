@@ -17,21 +17,21 @@
  *
  */
 
-import {t} from 'Util/LocalizerUtil';
-
-import {BackendEvent} from '../../event/Backend';
+import {SuperType} from '../../message/SuperType';
 import {SystemMessageType} from '../../message/SystemMessageType';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class SystemMessageEntity extends MessageEntity {
+  super_type: SuperType;
+  system_message_type: SystemMessageType;
 
-z.entity.RenameMessage = class RenameMessage extends z.entity.SystemMessage {
   constructor() {
     super();
-
-    this.type = BackendEvent.CONVERSATION.RENAME;
-    this.system_message_type = SystemMessageType.CONVERSATION_RENAME;
-
-    this.caption = ko.pureComputed(() => (this.user().is_me ? t('conversationRenameYou') : t('conversationRename')));
+    this.super_type = SuperType.SYSTEM;
+    this.system_message_type = SystemMessageType.NORMAL;
   }
-};
+
+  is_conversation_rename(): boolean {
+    return this.system_message_type === SystemMessageType.CONVERSATION_RENAME;
+  }
+}

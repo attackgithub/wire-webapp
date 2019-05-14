@@ -17,18 +17,22 @@
  *
  */
 
+import ko from 'knockout';
+
 import {t} from 'Util/LocalizerUtil';
 import {formatDuration} from 'Util/TimeUtil';
 
+import {ConversationEphemeralHandler} from '../../conversation/ConversationEphemeralHandler';
 import {BackendEvent} from '../../event/Backend';
 import {SystemMessageType} from '../../message/SystemMessageType';
-import {ConversationEphemeralHandler} from '../../conversation/ConversationEphemeralHandler';
+import {SystemMessageEntity} from './SystemMessage';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class MessageTimerUpdateMessage extends SystemMessageEntity {
+  caption: ko.PureComputed;
+  message_timer: number;
+  type: string;
 
-z.entity.MessageTimerUpdateMessage = class MessageTimerUpdateMessage extends z.entity.SystemMessage {
-  constructor(messageTimer) {
+  constructor(messageTimer: number) {
     super();
 
     this.type = BackendEvent.CONVERSATION.MESSAGE_TIMER_UPDATE;
@@ -47,4 +51,4 @@ z.entity.MessageTimerUpdateMessage = class MessageTimerUpdateMessage extends z.e
       return this.user().is_me ? t('conversationResetTimerYou') : t('conversationResetTimer');
     });
   }
-};
+}

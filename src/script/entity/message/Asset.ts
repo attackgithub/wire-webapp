@@ -26,18 +26,23 @@ export interface AssetPayload {
   type: string;
 }
 
-export class Asset {
-  public file_type: string;
-  public id: string;
-  public key: string;
-  public size: string;
-  public type: string;
+export abstract class Asset {
+  abstract file_name?: string;
+  abstract text?: string;
+  file_type: string;
+  id: string;
+  key: string;
+  size: string;
+  type: string;
 
   constructor(id: string) {
     this.id = id;
     this.key = '';
     this.type = '';
   }
+
+  abstract download?: (fileName?: string) => Promise<number | void>;
+  abstract isUserMentioned?: (userId: string) => boolean;
 
   is_image(): boolean {
     return this.type === AssetType.IMAGE;

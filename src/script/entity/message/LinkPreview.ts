@@ -23,7 +23,7 @@ import {obfuscate} from 'Util/StringUtil';
 import {AssetRemoteData} from '../../assets/AssetRemoteData';
 import {LinkPreviewMetaDataType} from '../../links/LinkPreviewMetaDataType';
 
-export class LinkPreview {
+export class LinkPreviewEntity {
   image_resource: ko.Observable<AssetRemoteData>;
   meta_data_type?: LinkPreviewMetaDataType;
   meta_data?: string;
@@ -39,7 +39,7 @@ export class LinkPreview {
     this.meta_data_type = undefined;
   }
 
-  obfuscate() {
+  obfuscate(): void {
     this.title = obfuscate(this.title);
     this.url = obfuscate(this.url);
 

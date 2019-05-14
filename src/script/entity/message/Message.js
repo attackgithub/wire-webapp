@@ -30,14 +30,11 @@ import {StatusType} from '../../message/StatusType';
 import {SuperType} from '../../message/SuperType';
 import {User} from '../User';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
-
-class Message {
+export class MessageEntity {
   /**
    * Sort messages by timestamp
-   * @param {Array<z.entity.Message>} message_ets - Message entities
-   * @returns {boolean} Sorted message entities
+   * @param {Array<MessageEntity>} message_ets - Message entities
+   * @returns {Array<MessageEntity>} Sorted message entities
    */
   static sort_by_timestamp(message_ets) {
     return message_ets.sort((m1, m2) => m1.timestamp() > m2.timestamp());
@@ -361,6 +358,3 @@ class Message {
     return false;
   }
 }
-
-export {Message};
-z.entity.Message = Message;

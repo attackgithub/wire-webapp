@@ -20,14 +20,14 @@
 import {instantiateComponent} from '../../../api/knockoutHelpers';
 
 import {viewportObserver} from 'src/script/ui/viewportObserver';
-import {ContentMessage} from 'src/script/entity/message/ContentMessage';
+import {ContentMessageEntity} from 'src/script/entity/message/ContentMessage';
 import {MediumImage} from 'src/script/entity/message/MediumImage';
 import 'src/script/components/asset/imageAsset';
 
 describe('image-asset', () => {
   const defaultParams = {
     asset: new MediumImage(),
-    message: new ContentMessage(),
+    message: new ContentMessageEntity(),
     onClick: () => {},
   };
 

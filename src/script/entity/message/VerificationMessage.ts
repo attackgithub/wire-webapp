@@ -17,17 +17,32 @@
  *
  */
 
-import {t, Declension, joinNames} from 'Util/LocalizerUtil';
+import {amplify} from 'amplify';
+import ko from 'knockout';
+
+import {Declension, joinNames, t} from 'Util/LocalizerUtil';
 import {capitalizeFirstChar} from 'Util/StringUtil';
 
 import {WebAppEvents} from '../../event/WebApp';
-import {VerificationMessageType} from '../../message/VerificationMessageType';
 import {SuperType} from '../../message/SuperType';
+import {VerificationMessageType} from '../../message/VerificationMessageType';
+import {User} from '../User';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class VerificationMessageEntity extends MessageEntity {
+  captionNewDevice: ko.PureComputed<string>;
+  captionStartedUsing: ko.PureComputed<string>;
+  captionUnverifiedDevice: ko.PureComputed<string>;
+  captionUser: ko.PureComputed<string>;
+  isSelfClient: ko.PureComputed<boolean>;
+  isTypeNewDevice: ko.PureComputed<boolean>;
+  isTypeNewMember: ko.PureComputed<boolean>;
+  isTypeUnverified: ko.PureComputed<boolean>;
+  isTypeVerified: ko.PureComputed<boolean>;
+  userEntities: ko.ObservableArray<User>;
+  userIds: ko.ObservableArray<string>;
+  verificationMessageType: ko.Observable<VerificationMessageType>;
 
-z.entity.VerificationMessage = class VerificationMessage extends z.entity.Message {
   constructor() {
     super();
 
@@ -78,8 +93,8 @@ z.entity.VerificationMessage = class VerificationMessage extends z.entity.Messag
     });
   }
 
-  clickOnDevice() {
+  clickOnDevice(): void {
     const topic = this.isSelfClient() ? WebAppEvents.PREFERENCES.MANAGE_DEVICES : WebAppEvents.SHORTCUT.PEOPLE;
     amplify.publish(topic);
   }
-};
+}

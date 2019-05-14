@@ -21,12 +21,11 @@ import ko from 'knockout';
 
 import {t} from 'Util/LocalizerUtil';
 
-import {SystemMessage} from './SystemMessage';
-
 import {BackendEvent} from '../../event/Backend';
 import {SystemMessageType} from '../../message/SystemMessageType';
+import {SystemMessageEntity} from './SystemMessage';
 
-export class ReceiptModeUpdateMessage extends SystemMessage {
+export class ReceiptModeUpdateMessage extends SystemMessageEntity {
   public caption: ko.PureComputed<string>;
 
   constructor(isReceiptEnabled: boolean) {

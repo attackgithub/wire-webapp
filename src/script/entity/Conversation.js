@@ -402,8 +402,8 @@ export class Conversation {
 
   /**
    * Adds a single message to the conversation.
-   * @param {z.entity.Message} messageEntity - Message entity to be added to the conversation.
-   * @returns {z.entity.Message | undefined} replacedEntity - If a message was replaced in the conversation, returns the original message
+   * @param {MessageEntity} messageEntity - Message entity to be added to the conversation.
+   * @returns {MessageEntity | undefined} replacedEntity - If a message was replaced in the conversation, returns the original message
    */
   add_message(messageEntity) {
     if (messageEntity) {
@@ -423,7 +423,7 @@ export class Conversation {
 
   /**
    * Adds multiple messages to the conversation.
-   * @param {Array<z.entity.Message>} message_ets - Array of message entities to be added to the conversation
+   * @param {Array<MessageEntity>} message_ets - Array of message entities to be added to the conversation
    * @returns {undefined} No return value
    */
   add_messages(message_ets) {
@@ -491,7 +491,7 @@ export class Conversation {
 
   /**
    * Prepends messages with new batch of messages.
-   * @param {Array<z.entity.Message>} message_ets - Array of messages to be added to conversation
+   * @param {Array<MessageEntity>} message_ets - Array of messages to be added to conversation
    * @returns {undefined} No return value
    */
   prepend_messages(message_ets) {
@@ -556,8 +556,8 @@ export class Conversation {
    * Checks for message duplicates.
    *
    * @private
-   * @param {z.entity.Message} messageEntity - Message entity to be added to the conversation
-   * @returns {z.entity.Message|undefined} Message if it is not a duplicate
+   * @param {MessageEntity} messageEntity - Message entity to be added to the conversation
+   * @returns {MessageEntity|undefined} Message if it is not a duplicate
    */
   _checkForDuplicate(messageEntity) {
     if (messageEntity) {
@@ -595,7 +595,7 @@ export class Conversation {
    * Update information about conversation activity from single message.
    *
    * @private
-   * @param {z.entity.Message} message_et - Message to be added to conversation
+   * @param {MessageEntity} message_et - Message to be added to conversation
    * @returns {undefined} No return value
    */
   update_timestamps(message_et) {
@@ -617,7 +617,7 @@ export class Conversation {
 
   /**
    * Get all messages.
-   * @returns {Array<z.entity.Message>} Array of all message in the conversation
+   * @returns {Array<MessageEntity>} Array of all message in the conversation
    */
   get_all_messages() {
     return this.messages();
@@ -625,7 +625,7 @@ export class Conversation {
 
   /**
    * Get the first message of the conversation.
-   * @returns {z.entity.Message|undefined} First message entity or undefined
+   * @returns {MessageEntity|undefined} First message entity or undefined
    */
   getFirstMessage() {
     return this.messages()[0];
@@ -633,7 +633,7 @@ export class Conversation {
 
   /**
    * Get the last message of the conversation.
-   * @returns {z.entity.Message|undefined} Last message entity or undefined
+   * @returns {MessageEntity|undefined} Last message entity or undefined
    */
   getLastMessage() {
     return this.messages()[this.messages().length - 1];
@@ -641,8 +641,8 @@ export class Conversation {
 
   /**
    * Get the message before a given message.
-   * @param {z.entity.Message} message_et - Message to look up from
-   * @returns {z.entity.Message | undefined} Previous message
+   * @param {MessageEntity} message_et - Message to look up from
+   * @returns {MessageEntity | undefined} Previous message
    */
   get_previous_message(message_et) {
     const messages_visible = this.messages_visible();
@@ -654,7 +654,7 @@ export class Conversation {
 
   /**
    * Get the last text message that was added by self user.
-   * @returns {z.entity.Message} Last message edited
+   * @returns {MessageEntity} Last message edited
    */
   get_last_editable_message() {
     const messages = this.messages();
@@ -668,7 +668,7 @@ export class Conversation {
 
   /**
    * Get the last delivered message.
-   * @returns {z.entity.Message} Last delivered message
+   * @returns {MessageEntity} Last delivered message
    */
   getLastDeliveredMessage() {
     return this.messages()
@@ -685,7 +685,7 @@ export class Conversation {
    * Only lookup in the loaded message list which is a limited view of all the messages in DB.
    *
    * @param {string} messageId - ID of message to be retrieved
-   * @returns {z.entity.Message|undefined} Message with ID or undefined
+   * @returns {MessageEntity|undefined} Message with ID or undefined
    */
   getMessage(messageId) {
     return this.messages().find(messageEntity => messageEntity.id === messageId);

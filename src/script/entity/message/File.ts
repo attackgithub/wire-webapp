@@ -33,7 +33,7 @@ import {AssetUploadFailedReason} from '../../assets/AssetUploadFailedReason';
 
 type AssetMetaData = ProtobufAsset.IAudioMetaData | ProtobufAsset.IImageMetaData | ProtobufAsset.IVideoMetaData;
 
-export class File extends Asset {
+export class FileEntity extends Asset {
   downloadProgress: ko.PureComputed<number | undefined>;
   file_name: string;
   file_size: string;

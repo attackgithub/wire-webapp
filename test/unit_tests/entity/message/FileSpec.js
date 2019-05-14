@@ -19,14 +19,14 @@
 
 //@ts-check
 
-import {File} from 'src/script/entity/message/File';
+import {FileEntity} from 'src/script/entity/message/File';
 
 describe('File', () => {
-  /** @type {File} */
+  /** @type {FileEntity} */
   let file;
 
   beforeEach(() => {
-    file = new File();
+    file = new FileEntity();
   });
 
   describe('is_video', () => {

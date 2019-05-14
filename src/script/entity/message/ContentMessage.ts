@@ -17,20 +17,37 @@
  *
  */
 
-import moment from 'moment';
 import ko from 'knockout';
+import moment from 'moment';
 
 import {copyText} from 'Util/ClipboardUtil';
 import {t} from 'Util/LocalizerUtil';
 
-import {Message} from './Message';
+import {Confirmation} from '@wireapp/protocol-messaging';
+import {QuoteEntity} from '../../message/QuoteEntity';
 import {SuperType} from '../../message/SuperType';
+import {User} from '../User';
+import {Asset} from './Asset';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class ContentMessageEntity extends MessageEntity {
+  assets: ko.ObservableArray<Asset>;
+  edited_timestamp: ko.Observable<string>;
+  is_liked_provisional: ko.Observable<boolean>;
+  is_liked: ko.PureComputed<boolean>;
+  like_caption: ko.PureComputed<string>;
+  other_likes: ko.PureComputed<User[]>;
+  quote: ko.Observable<QuoteEntity>;
+  reactions_user_ets: ko.ObservableArray<User>;
+  reactions_user_ids: ko.PureComputed<string>;
+  reactions: ko.Observable<Record<string, any>>;
+  readReceipts: ko.ObservableArray<Confirmation>;
+  replacing_message_id: string | null;
+  super_type: SuperType;
+  version: number;
+  was_edited: ko.PureComputed<boolean>;
 
-class ContentMessage extends Message {
-  constructor(id) {
+  constructor(id: string) {
     super(id);
 
     this.assets = ko.observableArray([]);
@@ -43,17 +60,13 @@ class ContentMessage extends Message {
     this.reactions = ko.observable({});
     this.reactions_user_ets = ko.observableArray();
     this.reactions_user_ids = ko.pureComputed(() => {
-      this.reactions_user_ets()
+      return this.reactions_user_ets()
         .map(user_et => user_et.first_name())
         .join(', ');
     });
 
     this.quote = ko.observable();
     this.readReceipts = ko.observableArray([]);
-
-    this.display_edited_timestamp = () => {
-      return t('conversationEditTimestamp', moment(this.edited_timestamp()).format('LT'));
-    };
 
     this.is_liked_provisional = ko.observable();
     this.is_liked = ko.pureComputed({
@@ -82,28 +95,32 @@ class ContentMessage extends Message {
     });
   }
 
-  /**
-   * Add another content asset to the message.
-   * @param {Asset} asset_et - New content asset
-   * @returns {undefined} No return value
-   */
-  add_asset(asset_et) {
+  display_edited_timestamp(): string {
+    return t('conversationEditTimestamp', moment(this.edited_timestamp()).format('LT'));
+  }
+
+  add_asset(asset_et: Asset): void {
     this.assets.push(asset_et);
   }
 
-  copy() {
+  copy(): void {
     copyText(this.get_first_asset().text);
   }
 
   /**
    * Get the first asset attached to the message.
-   * @returns {Asset} The first asset attached to the message
    */
-  get_first_asset() {
+  get_first_asset(): Asset {
     return this.assets()[0];
   }
 
-  getUpdatedReactions({data: event_data, from}) {
+  getUpdatedReactions({
+    data: event_data,
+    from,
+  }: {
+    data: any;
+    from: string;
+  }): {reactions: Record<string, any>; version: number} | false {
     const reaction = event_data && event_data.reaction;
     const hasUser = this.reactions()[from];
     const shouldAdd = reaction && !hasUser;
@@ -113,10 +130,10 @@ class ContentMessage extends Message {
       return false;
     }
 
-    const newReactions = Object.assign({}, this.reactions());
+    const newReactions = {...this.reactions()};
 
     if (shouldAdd) {
-      Object.assign(newReactions, {[from]: reaction});
+      newReactions[from] = reaction;
     } else {
       delete newReactions[from];
     }
@@ -125,46 +142,38 @@ class ContentMessage extends Message {
   }
 
   /**
-   * @param {string} userId - The user id to check
-   * @returns {boolean} True if the message mentions the user.
+   * @returns `true` if the message mentions the user.
    */
-  isUserMentioned(userId) {
+  isUserMentioned(userId: string): boolean {
     return this.has_asset_text()
       ? this.assets().some(assetEntity => assetEntity.is_text() && assetEntity.isUserMentioned(userId))
       : false;
   }
 
   /**
-   * @param {string} userId - The user id to check
-   * @returns {boolean} True if the message quotes the user.
+   * @returns `true` if the message quotes the user.
    */
-  isUserQuoted(userId) {
+  isUserQuoted(userId: string): boolean {
     return this.quote() ? this.quote().isQuoteFromUser(userId) : false;
   }
 
   /**
-   * @param {string} userId - The user id to check
-   * @returns {boolean} True if the user was mentioned or quoted.
+   * @returns `true` if the user was mentioned or quoted.
    */
-  isUserTargeted(userId) {
+  isUserTargeted(userId: string): boolean {
     return this.isUserMentioned(userId) || this.isUserQuoted(userId);
   }
 
   /**
    * Download message content.
-   * @returns {undefined} No return value
    */
-  download() {
+  download(): void {
     const asset_et = this.get_first_asset();
     const file_name = this.get_content_name();
     asset_et.download(file_name);
   }
 
-  /**
-   * Get content name.
-   * @returns {string} The content/file name.
-   */
-  get_content_name() {
+  get_content_name(): string {
     const asset_et = this.get_first_asset();
     let {file_name} = asset_et;
 
@@ -181,6 +190,3 @@ class ContentMessage extends Message {
     return file_name;
   }
 }
-
-export {ContentMessage};
-z.entity.ContentMessage = ContentMessage;

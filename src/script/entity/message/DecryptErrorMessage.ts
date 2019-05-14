@@ -24,14 +24,20 @@ import {printDevicesId} from 'Util/util';
 
 import {URL_PATH, getWebsiteUrl} from '../../externalRoute';
 import {SuperType} from '../../message/SuperType';
+import {MessageEntity} from './Message';
 
-window.z = window.z || {};
-window.z.entity = z.entity || {};
+export class DecryptErrorMessageEntity extends MessageEntity {
+  static REMOTE_IDENTITY_CHANGED_ERROR = ProteusErrors.DecryptError.CODE.CASE_204.toString();
 
-z.entity.DecryptErrorMessage = class DecryptErrorMessage extends z.entity.Message {
-  static get REMOTE_IDENTITY_CHANGED_ERROR() {
-    return ProteusErrors.DecryptError.CODE.CASE_204.toString();
-  }
+  client_id: string;
+  error_code: string;
+  error_message: ko.PureComputed<string | undefined>;
+  htmlCaption: ko.PureComputed<string>;
+  htmlErrorMessage: ko.PureComputed<string | undefined>;
+  is_recoverable: ko.PureComputed<boolean>;
+  is_remote_identity_changed: ko.PureComputed<boolean>;
+  is_resetting_session: ko.Observable<boolean>;
+  link: ko.PureComputed<string>;
 
   constructor() {
     super();
@@ -60,9 +66,11 @@ z.entity.DecryptErrorMessage = class DecryptErrorMessage extends z.entity.Messag
     this.is_recoverable = ko.pureComputed(() => {
       return this.error_code.toString().startsWith('2') && !this.is_remote_identity_changed();
     });
+
     this.is_remote_identity_changed = ko.pureComputed(() => {
-      return this.error_code.toString() === DecryptErrorMessage.REMOTE_IDENTITY_CHANGED_ERROR;
+      return this.error_code.toString() === DecryptErrorMessageEntity.REMOTE_IDENTITY_CHANGED_ERROR;
     });
+
     this.is_resetting_session = ko.observable(false);
 
     this.error_message = ko.pureComputed(() => {
@@ -80,8 +88,10 @@ z.entity.DecryptErrorMessage = class DecryptErrorMessage extends z.entity.Messag
       if (parts.length) {
         return `(${parts.join('')})`;
       }
+
+      return undefined;
     });
 
     this.htmlErrorMessage = this.error_message;
   }
-};
+}
