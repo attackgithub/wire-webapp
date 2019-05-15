@@ -42,10 +42,11 @@ export class ClientEntity {
   time?: string;
   type?: ClientType;
 
-  constructor(isSelfClient = false) {
+  // TODO: Once every code part uses the constructor with two parameters, we can get rid off the "?" value
+  constructor(isSelfClient: boolean = false, classification: ClientClassification | '?' = '?') {
     this.isSelfClient = isSelfClient;
 
-    this.class = '?';
+    this.class = classification;
     this.id = '';
 
     if (this.isSelfClient) {
@@ -117,7 +118,7 @@ export class ClientEntity {
     return jsonObject;
   }
 
-  private removeDefaultValues(jsonObject: Record<string, any>, memberName: string) {
+  private removeDefaultValues(jsonObject: Record<string, any>, memberName: string): void {
     if (jsonObject.hasOwnProperty(memberName)) {
       const isDefaultValue = jsonObject[memberName] === ClientEntity.CONFIG.DEFAULT_VALUE;
       if (isDefaultValue) {
