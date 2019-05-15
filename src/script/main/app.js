@@ -239,7 +239,8 @@ class App {
       repositories.conversation,
       repositories.event,
       repositories.media,
-      serverTimeHandler
+      serverTimeHandler,
+      repositories.user
     );
     repositories.integration = new IntegrationRepository(
       this.service.integration,
