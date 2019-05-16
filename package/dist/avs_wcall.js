@@ -560,6 +560,9 @@ var Wcall = /** @class */ (function () {
     Wcall.prototype.replaceTrack = function (convid, newTrack) {
         avs_pc_js_1.default.replaceTrack(convid, newTrack);
     };
+    Wcall.prototype.getPeerConnections = function () {
+      return avs_pc_js_1.default.getPeerConnections();
+    }
     return Wcall;
 }());
 exports.Wcall = Wcall;

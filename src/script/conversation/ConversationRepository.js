@@ -1988,13 +1988,6 @@ export class ConversationRepository {
           return this._trackContributed(conversationEntity, eventInfoEntity.genericMessage, callMessageEntity);
         }
         */
-      })
-      .catch(error => {
-        if (error.type !== z.error.ConversationError.TYPE.DEGRADED_CONVERSATION_CANCELLATION) {
-          throw error;
-        }
-
-        amplify.publish(WebAppEvents.CALL.STATE.DELETE, callMessageEntity.conversationId);
       });
   }
 

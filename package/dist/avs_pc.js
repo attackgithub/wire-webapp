@@ -46,6 +46,7 @@ var connectionsStore = (function () {
         return store.indexOf(item) != -1;
     };
     return {
+        getAllPeerConnections: () => peerConnections.filter(pc => !!pc),
         storePeerConnection: function (pc) { return storeItem(peerConnections, pc); },
         getPeerConnection: function (index) { return getItem(peerConnections, index); },
         getPeerConnectionByConvid: function (convid) {
@@ -592,5 +593,6 @@ exports.default = {
     init: pc_InitModule,
     setUserMediaHandler: pc_SetUserMediaHandler,
     setVideoTrackHandler: pc_SetVideoTrackHandler,
-    replaceTrack: pc_ReplaceTrack
+    replaceTrack: pc_ReplaceTrack,
+    getPeerConnections: () => connectionsStore.getAllPeerConnections().map(pc => pc.rtc),
 };
