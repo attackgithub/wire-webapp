@@ -47,7 +47,7 @@ notifications:
 
 # http://docs.travis-ci.com/user/deployment/
 after_success:
-  - if [[ "${TRAVIS_BRANCH}" =~ ^refactor/avs_calling_api$ ]] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then yarn build:prod; fi
+  - if [[ "${TRAVIS_BRANCH}" =~ ^refactor/avs_calling_api$ ]] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [ "$DISTRIBUTION" == "wire" ]; then yarn build:prod; fi
   - if [[ "${TRAVIS_BRANCH}" =~ ^(dev|edge)$ ]] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then yarn build:prod; fi
   - |
     if [[ "${TRAVIS_TAG}" =~ .*-staging.* ]]; then
@@ -134,6 +134,7 @@ deploy:
     bucket_name: wire-webapp-builds
     on:
       branch: refactor/avs_calling_api
+      condition: $DISTRIBUTION = wire
 
   # https://wire-webapp-staging.zinfra.io/
   - provider: elasticbeanstalk
