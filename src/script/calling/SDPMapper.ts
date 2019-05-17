@@ -20,7 +20,14 @@
 import {Environment} from 'Util/Environment';
 import {includesString} from 'Util/StringUtil';
 
+import {CallMessageEntity} from './entities/CallMessageEntity';
 import {SDP_TYPE} from './rtc/SDPType';
+
+export interface SDPConfig {
+  isGroup?: boolean;
+  isIceRestart?: boolean;
+  isLocalSdp?: boolean;
+}
 
 export const SDPMapper = {
   CONFIG: {
@@ -30,10 +37,10 @@ export const SDPMapper = {
 
   /**
    * Get the tool version that generated the SDP
-   * @param {string} sdpString - Full SDP string
-   * @returns {string} Tool version of SDP
+   * @param sdpString Full SDP string
+   * @returns Tool version of SDP
    */
-  getToolVersion(sdpString) {
+  getToolVersion(sdpString: string): string | void {
     for (const sdpLine of sdpString.split('\r\n')) {
       if (sdpLine.startsWith('a=tool')) {
         return sdpLine.replace('a=tool:', '');
@@ -43,11 +50,11 @@ export const SDPMapper = {
 
   /**
    * Map call setup message to RTCSessionDescription.
-   * @param {CallMessageEntity} callMessageEntity - Call message entity of type CALL_MESSAGE_TYPE.SETUP
-   * @returns {Promise} Resolves with a webRTC standard compliant RTCSessionDescription
+   * @param callMessageEntity Call message entity of type CALL_MESSAGE_TYPE.SETUP
+   * @returns Resolves with a webRTC standard compliant RTCSessionDescription
    */
-  mapCallMessageToObject(callMessageEntity) {
-    const {response, sdp: sdpString} = callMessageEntity;
+  mapCallMessageToObject(callMessageEntity: CallMessageEntity) {
+    const {response, sdp: sdpString} = callMessageEntity as any;
     const sdp = {
       sdp: sdpString,
       type: response ? SDP_TYPE.ANSWER : SDP_TYPE.OFFER,
@@ -59,26 +66,29 @@ export const SDPMapper = {
   /**
    * Rewrite the SDP for compatibility reasons.
    *
-   * @param {RTCSessionDescription} rtcSdp - Session Description Protocol to be rewritten
-   * @param {Object} config - Gives info on the type of SDP and what is its destination
-   * @returns {Object} Object containing rewritten Session Description Protocol and number of ICE candidates
+   * @param rtcSdp Session Description Protocol to be rewritten
+   * @param config Sets info on the type of SDP and what is its destination
+   * @returns Object containing the rewritten Session Description Protocol and number of ICE candidates
    */
-  rewriteSdp(rtcSdp, {isIceRestart, isLocalSdp, isGroup} = {}) {
+  rewriteSdp(
+    rtcSdp: RTCSessionDescription,
+    config: SDPConfig = {}
+  ): {iceCandidates: string[]; sdp: {sdp: string; type: RTCSdpType}} {
+    const {isIceRestart, isLocalSdp, isGroup} = config;
     if (!rtcSdp) {
       throw new z.error.CallError(z.error.CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
     }
 
     const {sdp, type} = rtcSdp;
-    const sdpLines = [];
-    const iceCandidates = [];
-    let sessionDescription;
+    const sdpLines: string[] = [];
+    const iceCandidates: string[] = [];
 
     const isFirefox = Environment.browser.firefox;
 
     const isLocalSdpInGroup = isLocalSdp && isGroup;
     const isOffer = rtcSdp.type === SDP_TYPE.OFFER;
 
-    sessionDescription = isLocalSdp ? sdp.replace('UDP/TLS/', '') : sdp;
+    let sessionDescription = isLocalSdp ? sdp.replace('UDP/TLS/', '') : sdp;
 
     if (isFirefox) {
       sessionDescription = isLocalSdp

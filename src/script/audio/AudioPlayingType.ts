@@ -19,22 +19,12 @@
 
 import {AudioType} from './AudioType';
 
-const audioPlayingType = {};
+const MUTED = [AudioType.CALL_DROP, AudioType.NETWORK_INTERRUPTION];
+const NONE = [...MUTED, AudioType.OUTGOING_CALL, AudioType.READY_TO_TALK, AudioType.TALK_LATER];
+const SOME = [...NONE, AudioType.INCOMING_CALL, AudioType.INCOMING_PING, AudioType.OUTGOING_PING];
 
-audioPlayingType.MUTED = [AudioType.CALL_DROP, AudioType.NETWORK_INTERRUPTION];
-
-audioPlayingType.NONE = [
-  ...audioPlayingType.MUTED,
-  AudioType.OUTGOING_CALL,
-  AudioType.READY_TO_TALK,
-  AudioType.TALK_LATER,
-];
-
-audioPlayingType.SOME = [
-  ...audioPlayingType.NONE,
-  AudioType.INCOMING_CALL,
-  AudioType.INCOMING_PING,
-  AudioType.OUTGOING_PING,
-];
-
-export const AudioPlayingType = audioPlayingType;
+export const AudioPlayingType = {
+  MUTED,
+  NONE,
+  SOME,
+};
