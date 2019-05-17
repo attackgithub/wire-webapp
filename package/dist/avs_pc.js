@@ -594,5 +594,5 @@ exports.default = {
     setUserMediaHandler: pc_SetUserMediaHandler,
     setVideoTrackHandler: pc_SetVideoTrackHandler,
     replaceTrack: pc_ReplaceTrack,
-    getPeerConnections: () => connectionsStore.getAllPeerConnections().map(pc => pc.rtc),
+    getPeerConnections: () => connectionsStore.getAllPeerConnections().map(pc => ({peerConnection: pc.rtc, remoteUserId: pc.remote_userid})),
 };
