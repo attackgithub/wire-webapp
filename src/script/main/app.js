@@ -238,7 +238,8 @@ class App {
       resolve(graph.BackendClient),
       repositories.conversation,
       repositories.event,
-      repositories.media,
+      repositories.media.devicesHandler,
+      repositories.media.constraintsHandler,
       serverTimeHandler,
       repositories.user
     );
