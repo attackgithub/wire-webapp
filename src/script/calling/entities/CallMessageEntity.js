@@ -21,7 +21,7 @@ import {getRandomChar} from 'Util/StringUtil';
 
 import {CALL_MESSAGE_TYPE} from '../enum/CallMessageType';
 
-class CallMessageEntity {
+export class CallMessageEntity {
   static get CONFIG() {
     return {
       PAYLOAD_TYPES: {
@@ -116,5 +116,3 @@ class CallMessageEntity {
       .join('');
   }
 }
-
-export {CallMessageEntity};

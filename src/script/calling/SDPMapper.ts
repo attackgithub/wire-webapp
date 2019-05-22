@@ -29,6 +29,11 @@ export interface SDPConfig {
   isLocalSdp?: boolean;
 }
 
+export interface MappedSDP {
+  iceCandidates: string[];
+  sdp: RTCSessionDescriptionInit;
+}
+
 export const SDPMapper = {
   CONFIG: {
     AUDIO_BITRATE: '30',
@@ -53,14 +58,14 @@ export const SDPMapper = {
    * @param callMessageEntity Call message entity of type CALL_MESSAGE_TYPE.SETUP
    * @returns Resolves with a webRTC standard compliant RTCSessionDescription
    */
-  mapCallMessageToObject(callMessageEntity: CallMessageEntity) {
+  mapCallMessageToObject(callMessageEntity: CallMessageEntity): Promise<RTCSessionDescriptionInit> {
     const {response, sdp: sdpString} = callMessageEntity as any;
     const sdp = {
       sdp: sdpString,
       type: response ? SDP_TYPE.ANSWER : SDP_TYPE.OFFER,
     };
 
-    return Promise.resolve(sdp);
+    return Promise.resolve(sdp as RTCSessionDescriptionInit);
   },
 
   /**
@@ -70,10 +75,7 @@ export const SDPMapper = {
    * @param config Sets info on the type of SDP and what is its destination
    * @returns Object containing the rewritten Session Description Protocol and number of ICE candidates
    */
-  rewriteSdp(
-    rtcSdp: RTCSessionDescription,
-    config: SDPConfig = {}
-  ): {iceCandidates: string[]; sdp: {sdp: string; type: RTCSdpType}} {
+  rewriteSdp(rtcSdp: RTCSessionDescription, config: SDPConfig = {}): MappedSDP {
     const {isIceRestart, isLocalSdp, isGroup} = config;
     if (!rtcSdp) {
       throw new z.error.CallError(z.error.CallError.TYPE.NOT_FOUND, 'Cannot rewrite undefined SDP');
