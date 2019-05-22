@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var em_module;
 var logFn = function () { };
 var userMediaHandler = null;
-var videoTrackHandler = function () { };
+var mediaStreamHandler = function () { };
 /* The following constants closely reflect the values
  * defined in the the C-land counterpart peerconnection_js.c
  */
@@ -46,7 +46,6 @@ var connectionsStore = (function () {
         return store.indexOf(item) != -1;
     };
     return {
-        getAllPeerConnections: () => peerConnections.filter(pc => !!pc),
         storePeerConnection: function (pc) { return storeItem(peerConnections, pc); },
         getPeerConnection: function (index) { return getItem(peerConnections, index); },
         getPeerConnectionByConvid: function (convid) {
@@ -222,18 +221,8 @@ function pc_Create(hnd) {
     rtc.onconnectionstatechange = function () { return connectionHandler(pc); };
     rtc.ondatachannel = function (event) { return dataChannelHandler(pc, event); };
     rtc.ontrack = function (event) {
-        var stream = event.streams[0];
-        if (stream.getAudioTracks().length > 0) {
-            if (pc.audio == null) {
-                var audio = new Audio();
-                audio.srcObject = stream;
-                audio.play();
-                pc_log(LOG_LEVEL_INFO, "AUDIO stream added: " + stream);
-                pc.audio = audio;
-            }
-        }
-        if (videoTrackHandler != null) {
-            videoTrackHandler(pc.convid, pc.remote_userid, pc.remote_clientid, stream.getVideoTracks());
+        if (mediaStreamHandler != null) {
+            mediaStreamHandler(pc.convid, pc.remote_userid, pc.remote_clientid, event.streams);
         }
     };
     pc.rtc = rtc;
@@ -565,8 +554,8 @@ function pc_InitModule(module, logh) {
 function pc_SetUserMediaHandler(umh) {
     userMediaHandler = umh;
 }
-function pc_SetVideoTrackHandler(vth) {
-    videoTrackHandler = vth;
+function pc_SetMediaStreamHandler(msh) {
+    mediaStreamHandler = msh;
 }
 function pc_ReplaceTrack(convid, newTrack) {
     var pcs = connectionsStore.getPeerConnectionByConvid(convid);
@@ -589,10 +578,24 @@ function pc_ReplaceTrack(convid, newTrack) {
         }
     }
 }
+function pc_GetStats(convid) {
+    var pcs = connectionsStore.getPeerConnectionByConvid(convid);
+    var statsPromises = [];
+    var _loop_1 = function (pc) {
+        var rtc = pc.rtc;
+        if (rtc)
+            statsPromises.push(rtc.getStats().then(function (stats) { return ({ userid: pc.remote_userid, stats: stats }); }));
+    };
+    for (var _i = 0, pcs_2 = pcs; _i < pcs_2.length; _i++) {
+        var pc = pcs_2[_i];
+        _loop_1(pc);
+    }
+    return Promise.all(statsPromises);
+}
 exports.default = {
     init: pc_InitModule,
     setUserMediaHandler: pc_SetUserMediaHandler,
-    setVideoTrackHandler: pc_SetVideoTrackHandler,
+    setMediaStreamHandler: pc_SetMediaStreamHandler,
     replaceTrack: pc_ReplaceTrack,
-    getPeerConnections: () => connectionsStore.getAllPeerConnections().map(pc => ({peerConnection: pc.rtc, remoteUserId: pc.remote_userid})),
+    getStats: pc_GetStats
 };

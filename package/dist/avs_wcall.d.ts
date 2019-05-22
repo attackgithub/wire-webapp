@@ -1,4 +1,4 @@
-import { UserMediaHandler, VideoTrackHandler } from "./avs_pc.js";
+import { UserMediaHandler, MediaStreamHandler } from "./avs_pc.js";
 export declare enum LOG_LEVEL {
     DEBUG = 0,
     INFO = 1,
@@ -133,7 +133,11 @@ export declare class Wcall {
     setClientsForConv(wuser: number, convid: string, carray: string, clen: number): number;
     poll(): void;
     setUserMediaHandler(userMediaHandler: UserMediaHandler): void;
-    setVideoTrackHandler(videoTrackHandler: VideoTrackHandler): void;
+    setMediaStreamHandler(mediaStreamHandler: MediaStreamHandler): void;
     replaceTrack(convid: string, newTrack: MediaStreamTrack): void;
+    getStats(convid: string): Promise<Array<{
+        userid: string;
+        stats: RTCStatsReport;
+    }>>;
 }
 export declare const getAvsInstance: () => Promise<Wcall>;
