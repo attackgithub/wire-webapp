@@ -36,6 +36,7 @@ class ConversationListCallingCell {
     temporaryUserStyle = false,
     multitasking,
     callActions,
+    hasAccessToCamera,
   }) {
     this.call = call;
     this.conversation = conversation;
@@ -106,6 +107,10 @@ class ConversationListCallingCell {
       return isOutgoingVideoCall || isVideoUnsupported;
     });
 
+    this.showNoCameraPreview = ko.computed(() => {
+      return !hasAccessToCamera() && call.initialType === CALL_TYPE.VIDEO && !this.showVideoGrid() && !this.isOngoing();
+    });
+
     this.dispose = () => {
       window.clearInterval(callDurationUpdateInterval);
       startedAtSubscription.dispose();
@@ -153,11 +158,6 @@ class ConversationListCallingCell {
       const isOngoingVideoCall = this.isConnected() && this.isVideoCall() && !this.isDeclined();
 
       return !hasOtherOngoingCalls && isInMinimizedState && (hasPreJoinVideo || isOngoingVideoCall);
-    });
-
-    this.showNoCameraPreview = ko.computed(() => {
-      const isNotGranted = permissionRepository.permissionState.camera() !== PermissionState.GRANTED;
-      return this.call().isRemoteVideoCall() && !this.showVideoPreview() && !this.isConnected() && isNotGranted;
     });
 
 
@@ -243,6 +243,11 @@ ko.components.register('conversation-list-calling-cell', {
       </div>
     <!-- /ko -->
 
+    <!-- ko if: showNoCameraPreview() -->
+      <div class="group-video__minimized-wrapper group-video__minimized-wrapper--no-camera-access" data-bind="text: t('callNoCameraAccess')" data-uie-name="label-no-camera-access-preview"></div>
+    <!-- /ko -->
+
+
     <!-- ko if: !isDeclined() -->
       <div class="conversation-list-calling-cell-controls">
         <div class="conversation-list-calling-cell-controls-left">
@@ -291,22 +296,3 @@ ko.components.register('conversation-list-calling-cell', {
   `,
   viewModel: ConversationListCallingCell,
 });
-
-/*
-const oldTmpl = `
-
-
-    </div>
-
-    <!-- ko if: showNoCameraPreview() -->
-      <div class="group-video__minimized-wrapper group-video__minimized-wrapper--no-camera-access" data-bind="text: t('callNoCameraAccess')" data-uie-name="label-no-camera-access-preview"></div>
-    <!-- /ko -->
-
-    <!-- ko ifnot: canJoin() -->
-
-
-
-      </div>
-    <!-- /ko -->
- `;
- */
