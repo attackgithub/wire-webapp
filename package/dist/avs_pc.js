@@ -159,7 +159,7 @@ function connectionHandler(pc) {
     if (!rtc) {
         return;
     }
-    var state = rtc.connectionState;
+    var state = rtc.iceConnectionState;
     pc_log(LOG_LEVEL_INFO, "connectionHandler state: " + state);
     ccallConnectionHandler(pc, state);
     setMute(pc);
@@ -200,7 +200,6 @@ function pc_New(self, convidPtr) {
         remote_userid: "",
         remote_clientid: "",
         muted: false,
-        audio: null
     };
     var hnd = connectionsStore.storePeerConnection(pc);
     return hnd;
@@ -217,8 +216,8 @@ function pc_Create(hnd) {
     pc_log(LOG_LEVEL_INFO, "pc_Create: configuring: " + pc.turnServers.length + " TURN servers");
     var rtc = new RTCPeerConnection(config);
     rtc.onicegatheringstatechange = function () { return gatheringHandler(pc); };
+    rtc.oniceconnectionstatechange = function () { return connectionHandler(pc); };
     rtc.onsignalingstatechange = function (event) { return signallingHandler(pc); };
-    rtc.onconnectionstatechange = function () { return connectionHandler(pc); };
     rtc.ondatachannel = function (event) { return dataChannelHandler(pc, event); };
     rtc.ontrack = function (event) {
         if (mediaStreamHandler != null) {

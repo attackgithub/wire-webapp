@@ -238,6 +238,7 @@ class App {
       resolve(graph.BackendClient),
       repositories.conversation,
       repositories.event,
+      repositories.media.streamHandler,
       repositories.media.devicesHandler,
       repositories.media.constraintsHandler,
       serverTimeHandler,
@@ -400,6 +401,7 @@ class App {
         }
         this.repository.audio.init(true);
         this.repository.conversation.cleanup_conversations();
+        this.repository.calling.setReady();
         this.logger.info('App fully loaded');
       })
       .catch(error => this._appInitFailure(error, isReload));
