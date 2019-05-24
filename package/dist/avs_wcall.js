@@ -530,9 +530,6 @@ var Wcall = /** @class */ (function () {
     Wcall.prototype.propsyncRequest = function (wuser, convid) {
         this.em_module.ccall("wcall_propsync_request", "null", ["number", "string"], [wuser, convid]);
     };
-    Wcall.prototype.freeMembersJson = function (members) {
-        this.em_module.ccall("wcall_free_members_json", "null", ["string"], [members]);
-    };
     Wcall.prototype.enablePrivacy = function (wuser, enabled) {
         this.em_module.ccall("wcall_enable_privacy", "null", ["number", "number"], [wuser, enabled]);
     };

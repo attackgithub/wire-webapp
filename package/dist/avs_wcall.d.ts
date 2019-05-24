@@ -127,7 +127,6 @@ export declare class Wcall {
     getState(wuser: number, convid: string): number;
     iterateState(wuser: number, stateh: WcallStateChangeHandler, arg?: number): void;
     propsyncRequest(wuser: number, convid: string): void;
-    freeMembersJson(members: string): void;
     enablePrivacy(wuser: number, enabled: number): void;
     setReqClientsHandler(wuser: number, reqch: WcallReqClientsHandler): void;
     setClientsForConv(wuser: number, convid: string, carray: string, clen: number): number;
